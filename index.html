@@ -1,35 +1,28 @@
-<!-- index.html -->
 <!DOCTYPE html>
-<html lang="es">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy" content="frame-src 'self' https://app.powerbi.com;">
-    <title>Dashboard Power BI</title>
+    <title>Dashboard</title>
     <style>
-        body {
+        body, html {
             margin: 0;
             padding: 0;
+            height: 100%;
             overflow: hidden;
         }
-        #iframe-container {
-            position: fixed;
+        iframe {
             width: 100%;
             height: 100%;
-            top: 0;
-            left: 0;
-        }
-        /* Protección contra selección */
-        * {
-            user-select: none;
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
+            border: none;
         }
     </style>
 </head>
 <body>
-    <div id="iframe-container"></div>
-    <script src="js/protector.js"></script>
+    <iframe
+        title="Power BI Dashboard"
+        src="https://app.powerbi.com/view?r=eyJrIjoiMDc1MzFlYzAtYTM4Ny00ODk2LWE3YjItNzViMDNhODgyZDMzIiwidCI6ImFlNTQ0YTU3LWFlY2ItNGJmOS04MjhhLTViNTIwNzMyYjExMCJ9"
+        frameborder="0"
+        allowfullscreen="true"
+        sandbox="allow-scripts allow-same-origin allow-popups allow-downloads">
+    </iframe>
 </body>
 </html>
