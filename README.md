@@ -2,6 +2,18 @@
 
 Sistema web para visualizar un dashboard de Power BI y gestionar documentos de forma fácil con interfaz drag & drop.
 
+**✨ Ahora funciona 100% en la web con GitHub Pages - ¡No necesitas servidor!**
+
+## 🌐 Acceso Web
+
+**URL**: https://xamplix.github.io/proyecto/
+
+- 🏠 Dashboard: https://xamplix.github.io/proyecto/
+- 📤 Subir: https://xamplix.github.io/proyecto/upload.html
+- 📚 Documentos: https://xamplix.github.io/proyecto/documentos.html
+
+> **Nota**: Para usar la versión web, necesitas configurar un token de GitHub. Lee [SETUP-GITHUB-PAGES.md](SETUP-GITHUB-PAGES.md) para instrucciones.
+
 ## 🚀 Características
 
 - **Dashboard Power BI**: Visualización de datos integrada
@@ -9,12 +21,25 @@ Sistema web para visualizar un dashboard de Power BI y gestionar documentos de f
 - **Gestión de Archivos**: Visualiza, busca, descarga y elimina documentos
 - **Estadísticas**: Información sobre total de archivos y espacio usado
 
-## 📋 Requisitos
+## 📋 Dos Formas de Usar
 
+### Opción 1: GitHub Pages (Recomendado) 🌐
+
+✅ **Sin instalación**
+✅ **Sin servidor**
+✅ **Acceso desde cualquier lugar**
+
+Lee [SETUP-GITHUB-PAGES.md](SETUP-GITHUB-PAGES.md) para activarlo.
+
+### Opción 2: Servidor Local 💻
+
+Para desarrollo local o uso sin internet.
+
+**Requisitos:**
 - Node.js (versión 14 o superior)
 - npm (incluido con Node.js)
 
-## 🔧 Instalación
+## 🔧 Instalación (Solo para uso local)
 
 1. Clona este repositorio o descarga los archivos
 

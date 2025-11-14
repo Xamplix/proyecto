@@ -1,0 +1,14 @@
+# Configuración de GitHub Pages
+title: Sistema de Documentos MALLA 2025G
+description: Sistema de gestión de documentos con Power BI Dashboard
+
+# Excluir archivos del servidor local
+exclude:
+  - node_modules/
+  - package.json
+  - package-lock.json
+  - server.js
+  - upload.js
+  - documentos.js
+  - README.md
+  - INSTRUCCIONES.md
