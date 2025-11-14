@@ -4,6 +4,8 @@ Sistema web para visualizar un dashboard de Power BI y gestionar documentos de f
 
 **✨ Ahora funciona 100% en la web con GitHub Pages - ¡No necesitas servidor!**
 
+> 🚀 **[Ver Guía de Inicio Rápido (3 pasos)](INICIO-RAPIDO.md)**
+
 ## 🌐 Acceso Web
 
 **URL**: https://xamplix.github.io/proyecto/
