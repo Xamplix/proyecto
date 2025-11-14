@@ -1,0 +1,18 @@
+{
+  "name": "proyecto-malla-2025g",
+  "version": "1.0.0",
+  "description": "Sistema de gestión de documentos MALLA 2025G",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": ["upload", "documents", "malla"],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.18.2",
+    "multer": "^2.0.0-rc.4",
+    "cors": "^2.8.5"
+  }
+}

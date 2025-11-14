@@ -1,14 +1,58 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Dashboard</title>
+    <title>Dashboard - MALLA 2025G</title>
     <style>
         body, html {
             margin: 0;
             padding: 0;
             height: 100%;
             overflow: hidden;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            color: white;
+            font-size: 20px;
+            margin: 0;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+            color: white;
+            background: rgba(255,255,255,0.2);
+        }
+
+        .btn:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+        }
+
+        .iframe-container {
+            height: calc(100% - 60px);
+        }
+
         iframe {
             width: 100%;
             height: 100%;
@@ -17,12 +61,21 @@
     </style>
 </head>
 <body>
-    <iframe
-        title="Power BI Dashboard"
-        src="https://app.powerbi.com/view?r=eyJrIjoiMDc1MzFlYzAtYTM4Ny00ODk2LWE3YjItNzViMDNhODgyZDMzIiwidCI6ImFlNTQ0YTU3LWFlY2ItNGJmOS04MjhhLTViNTIwNzMyYjExMCJ9"
-        frameborder="0"
-        allowfullscreen="true"
-        sandbox="allow-scripts allow-same-origin allow-popups allow-downloads">
-    </iframe>
+    <div class="header">
+        <h1>📊 Dashboard - MALLA 2025G</h1>
+        <div class="nav-buttons">
+            <a href="documentos.html" class="btn">📚 Mis Documentos</a>
+            <a href="upload.html" class="btn">📤 Subir Archivos</a>
+        </div>
+    </div>
+    <div class="iframe-container">
+        <iframe
+            title="Power BI Dashboard"
+            src="https://app.powerbi.com/view?r=eyJrIjoiMDc1MzFlYzAtYTM4Ny00ODk2LWE3YjItNzViMDNhODgyZDMzIiwidCI6ImFlNTQ0YTU3LWFlY2ItNGJmOS04MjhhLTViNTIwNzMyYjExMCJ9"
+            frameborder="0"
+            allowfullscreen="true"
+            sandbox="allow-scripts allow-same-origin allow-popups allow-downloads">
+        </iframe>
+    </div>
 </body>
 </html>
