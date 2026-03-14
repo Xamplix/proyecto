@@ -233,11 +233,11 @@
         </div>
         <div class="problem-card">
             <h3>📊 Los Números</h3>
-            <div class="stat">~30,000</div>
-            <p>parámetros en el modelo</p>
-            <div class="stat" style="font-size:2em; margin-top:15px;">50</div>
-            <p>muestras de entrenamiento</p>
-            <p style="margin-top:15px; color:#ff8888;"><strong>Ratio 600:1</strong> — El modelo puede memorizar todo sin esfuerzo</p>
+            <div class="stat">~19,000</div>
+            <p>parametros en el modelo</p>
+            <div class="stat" style="font-size:2em; margin-top:15px;">60</div>
+            <p>muestras de entrenamiento (de 100 totales)</p>
+            <p style="margin-top:15px; color:#ff8888;"><strong>Ratio ~300:1</strong> — El modelo puede memorizar todo sin esfuerzo</p>
         </div>
         <div class="problem-card">
             <h3>🚫 Lo que falta</h3>
@@ -289,9 +289,9 @@
         </div>
     </div>
     <div style="margin-top: 35px; text-align: center;">
-        <span class="tag tag-red">ANTES: 5 capas, ~30K params, sin regularización</span>
-        &nbsp;&nbsp;→&nbsp;&nbsp;
-        <span class="tag tag-green">DESPUÉS: 3 capas, ~3K params, con Dropout + L2</span>
+        <span class="tag tag-red">ANTES: 5 capas, ~19K params, sin regularizacion</span>
+        &nbsp;&nbsp;&rarr;&nbsp;&nbsp;
+        <span class="tag tag-green">DESPUES: 3 capas, ~300 params, con Dropout + L2</span>
     </div>
 </div>
 
@@ -344,8 +344,8 @@
             </tr>
             <tr>
                 <td>Parámetros</td>
-                <td>~30,000</td>
-                <td>~3,000</td>
+                <td>~19,000</td>
+                <td>~300</td>
             </tr>
         </tbody>
     </table>
@@ -441,7 +441,7 @@
     <h2>✅ Conclusiones</h2>
     <ul class="conclusion-list">
         <li><strong>Diagnóstico:</strong> El modelo memorizaba el dataset de entrenamiento (Train ~100%, Test ~65-75%). Overfitting violento por falta de regularización con dataset pequeño.</li>
-        <li><strong>El Interruptor:</strong> Activamos Weight Decay (L2 = 0.01), Dropout (p = 0.3) y redujimos la capacidad de la red de ~30K a ~3K parámetros.</li>
+        <li><strong>El Interruptor:</strong> Activamos Weight Decay (L2 = 0.01), Dropout (p = 0.3) y redujimos la capacidad de la red de ~19K a ~300 parametros.</li>
         <li><strong>Anatomía del Éxito:</strong> El modelo pasó de memorizar ruido a aprender representaciones generalizables. Ahora detecta patrones reales en datos no vistos.</li>
         <li><strong>Resultado:</strong> La brecha train-test se redujo de ~30% a menos del 7%. El modelo ahora GENERALIZA en vez de memorizar.</li>
         <li><strong>Lección para HealthTech:</strong> En medicina, un modelo con overfitting puede dar diagnósticos falsos en pacientes nuevos. La regularización no es opcional, es esencial.</li>
