@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html><head>
+<meta charset="UTF-8">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { width: 1920px; height: 1080px; font-family: 'Inter', sans-serif; background: #fafafa; padding: 70px 100px; }
+  h1 { font-size: 56px; color: #1a1a1a; font-weight: 700; }
+  .accent { width: 120px; height: 4px; background: #7B1FA2; margin: 18px 0 12px; }
+  .subtitle { font-size: 24px; color: #7B1FA2; font-weight: 600; margin-bottom: 40px; }
+  .block { border-radius: 16px; padding: 40px 50px; margin-bottom: 35px; }
+  .block.purple { background: #f5eefc; border: 2px solid #7B1FA2; }
+  .block.green { background: #eef7f0; border: 2px solid #1E8850; }
+  .block h3 { font-size: 28px; margin-bottom: 14px; }
+  .block.purple h3 { color: #7B1FA2; }
+  .block.green h3 { color: #1E8850; }
+  .block .desc { font-size: 21px; color: #555; margin-bottom: 22px; line-height: 1.5; }
+  .formula-box { background: #fff; border-radius: 12px; padding: 20px 40px; text-align: center; box-shadow: 0 1px 6px rgba(0,0,0,0.06); }
+  .formula-box img { height: 70px; }
+  .label-row { text-align: center; margin-top: 8px; }
+  .label-row img { height: 35px; }
+</style>
+</head><body>
+  <h1>Bonus Matematico</h1>
+  <div class="accent"></div>
+  <div class="subtitle">Efecto del Weight Decay en la actualizacion de pesos</div>
+
+  <div class="block purple">
+    <h3>Sin Weight Decay</h3>
+    <div class="desc">Los pesos se actualizan solo por el gradiente de la perdida. No hay limite a su crecimiento.</div>
+    <div class="formula-box">
+      <img src="img/f1.png" alt="formula sin decay">
+    </div>
+  </div>
+
+  <div class="block green">
+    <h3>Con Weight Decay (L2)</h3>
+    <div class="desc">El factor <strong>(1 − ηλ)</strong> encoge los pesos en cada paso. Pesos grandes se penalizan mas fuertemente.</div>
+    <div class="formula-box">
+      <img src="img/f2.png" alt="formula con decay" style="height: 70px;">
+    </div>
+    <div class="label-row">
+      <img src="img/f2_label.png" alt="label" style="height: 35px; margin-left: -350px;">
+    </div>
+  </div>
+</body></html>

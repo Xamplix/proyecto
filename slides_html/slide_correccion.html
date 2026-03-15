@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html><head>
+<meta charset="UTF-8">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Fira+Code:wght@400;600&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { width: 1920px; height: 1080px; font-family: 'Inter', sans-serif; background: #fafafa; padding: 70px 100px; }
+  h1 { font-size: 56px; color: #1a1a1a; font-weight: 700; }
+  .accent { width: 120px; height: 4px; background: #1E8850; margin: 18px 0 12px; }
+  .subtitle { font-size: 24px; color: #1E8850; font-weight: 600; margin-bottom: 35px; }
+  .cards { display: flex; gap: 30px; }
+  .card { flex: 1; background: #eef7f0; border: 2px solid #1E8850; border-radius: 16px; padding: 35px; display: flex; flex-direction: column; }
+  .card h3 { font-size: 28px; color: #1E8850; margin-bottom: 6px; }
+  .card .sub { font-size: 16px; color: #888; margin-bottom: 20px; }
+  .card p { font-size: 19px; color: #333; line-height: 1.6; flex: 1; }
+  .card .code { background: #d5eedb; border: 1.5px solid #1E8850; border-radius: 10px; padding: 14px 20px; text-align: center; font-family: 'Fira Code', monospace; font-size: 18px; color: #1E8850; font-weight: 600; margin-top: 20px; }
+</style>
+</head><body>
+  <h1>La Correccion</h1>
+  <div class="accent"></div>
+  <div class="subtitle">Tres interruptores para arreglar el modelo</div>
+  <div class="cards">
+    <div class="card">
+      <h3>Weight Decay</h3>
+      <div class="sub">L2 Regularization</div>
+      <p>Penaliza pesos grandes sumando un termino de penalizacion a la perdida. Encoge los pesos hacia cero en cada actualizacion.</p>
+      <div class="code">weight_decay = 0.01</div>
+    </div>
+    <div class="card">
+      <h3>Dropout</h3>
+      <div class="sub">Regularizacion estocastica</div>
+      <p>Apaga neuronas al azar durante el entrenamiento. Impide que la red dependa de neuronas individuales, distribuyendo el aprendizaje.</p>
+      <div class="code">nn.Dropout(0.3)</div>
+    </div>
+    <div class="card">
+      <h3>Reducir Red</h3>
+      <div class="sub">Menos parametros</div>
+      <p>Menos capas y neuronas para que la red no pueda memorizar todo. Adecuamos la complejidad al tamano del dataset.</p>
+      <div class="code">19,000 → 300 params</div>
+    </div>
+  </div>
+</body></html>

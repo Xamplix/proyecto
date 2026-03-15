@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html><head>
+<meta charset="UTF-8">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { width: 1920px; height: 1080px; font-family: 'Inter', sans-serif; background: #fafafa; padding: 70px 100px; }
+  h1 { font-size: 56px; color: #1a1a1a; font-weight: 700; }
+  .accent { width: 120px; height: 4px; background: #1A73E8; margin: 18px 0 30px; }
+  .highlight { background: #eef3fc; border: 2px solid #1A73E8; border-radius: 14px; padding: 28px 35px; margin-bottom: 35px; }
+  .highlight h3 { font-size: 24px; color: #1A73E8; margin-bottom: 8px; }
+  .highlight p { font-size: 20px; color: #333; }
+  .cols { display: flex; gap: 35px; margin-bottom: 35px; }
+  .col { flex: 1; background: #fff; border: 2px solid #ddd; border-radius: 14px; padding: 35px; }
+  .col .tag { font-size: 14px; color: #1A73E8; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+  .col h3 { font-size: 30px; color: #1a1a1a; margin-bottom: 12px; }
+  .col .line { width: 60px; height: 3px; background: #1A73E8; margin-bottom: 18px; }
+  .col p { font-size: 20px; color: #444; line-height: 1.6; }
+  .warning { text-align: center; font-size: 21px; color: #D93025; font-weight: 600; }
+</style>
+</head><body>
+  <h1>Decision de Negocio</h1>
+  <div class="accent"></div>
+  <div class="highlight">
+    <h3>Si tuvieramos mas presupuesto, donde invertirlo?</h3>
+    <p><strong>Recomendacion:</strong> invertir en datos + regularizacion, no solo en mejores activaciones.</p>
+  </div>
+  <div class="cols">
+    <div class="col">
+      <div class="tag">Prioridad 1</div>
+      <h3>Mas datos</h3>
+      <div class="line"></div>
+      <p>Con un dataset pequeno, ninguna tecnica supera tener mas muestras. Data Augmentation, Transfer Learning, recopilacion de imagenes medicas.</p>
+    </div>
+    <div class="col">
+      <div class="tag">Prioridad 2</div>
+      <h3>Mejor regularizacion</h3>
+      <div class="line"></div>
+      <p>Combinar L2 + Dropout + Batch Normalization + Early Stopping. Validacion cruzada (k-fold) para estimar rendimiento real.</p>
+    </div>
+  </div>
+  <div class="warning">En medicina, un modelo que memoriza es peligroso: puede dar falsos negativos en pacientes nuevos.</div>
+</body></html>

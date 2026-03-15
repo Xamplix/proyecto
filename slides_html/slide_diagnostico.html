@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html><head>
+<meta charset="UTF-8">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { width: 1920px; height: 1080px; font-family: 'Inter', sans-serif; background: #fafafa; padding: 70px 100px; }
+  h1 { font-size: 56px; color: #1a1a1a; font-weight: 700; }
+  .accent { width: 120px; height: 4px; background: #FF8F00; margin: 18px 0 30px; }
+  .item { display: flex; margin-bottom: 22px; align-items: flex-start; }
+  .item .dot { width: 8px; min-width: 8px; height: 60px; background: #FF8F00; border-radius: 4px; margin-right: 25px; margin-top: 4px; }
+  .item .label { font-size: 22px; font-weight: 700; color: #FF8F00; min-width: 160px; padding-top: 2px; }
+  .item .desc { font-size: 21px; color: #333; line-height: 1.55; }
+</style>
+</head><body>
+  <h1>Diagnostico</h1>
+  <div class="accent"></div>
+
+  <div class="item">
+    <div class="dot"></div>
+    <div class="label">Sintoma</div>
+    <div class="desc">Train accuracy converge a ~100% mientras test accuracy se estanca o cae. La brecha (gap) supera el 25%. La perdida de test diverge.</div>
+  </div>
+  <div class="item">
+    <div class="dot"></div>
+    <div class="label">Causa raiz</div>
+    <div class="desc">Sin regularizacion, los pesos crecen sin control. Con 300x mas parametros que muestras, la red memoriza cada dato incluyendo su ruido.</div>
+  </div>
+  <div class="item">
+    <div class="dot"></div>
+    <div class="label">Evidencia</div>
+    <div class="desc">Los pesos muestran valores grandes y dispersos (alta varianza). Codifican ruido en vez de patrones generalizables.</div>
+  </div>
+  <div class="item">
+    <div class="dot"></div>
+    <div class="label">Analogia</div>
+    <div class="desc">Un estudiante que memoriza las respuestas del examen de practica en vez de aprender la materia. Perfecto en lo visto, pesimo en preguntas nuevas.</div>
+  </div>
+</body></html>

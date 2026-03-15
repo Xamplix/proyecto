@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html><head>
+<meta charset="UTF-8">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { width: 1920px; height: 1080px; font-family: 'Inter', sans-serif; background: #fafafa; padding: 70px 100px; }
+  h1 { font-size: 56px; color: #1a1a1a; font-weight: 700; }
+  .accent { width: 120px; height: 4px; background: #0097A7; margin: 18px 0 12px; }
+  .subtitle { font-size: 24px; color: #0097A7; font-weight: 600; margin-bottom: 35px; }
+  .cols { display: flex; gap: 40px; }
+  .col { flex: 1; border-radius: 16px; padding: 40px; }
+  .col.bad { background: #fdf0f0; border: 2px solid #D93025; }
+  .col.good { background: #eef7f0; border: 2px solid #1E8850; }
+  .col h3 { font-size: 28px; margin-bottom: 8px; }
+  .col.bad h3 { color: #D93025; }
+  .col.good h3 { color: #1E8850; }
+  .col .line { width: 80px; height: 3px; margin-bottom: 22px; }
+  .col.bad .line { background: #D93025; }
+  .col.good .line { background: #1E8850; }
+  .col ul { list-style: none; }
+  .col ul li { font-size: 21px; color: #333; padding: 10px 0; line-height: 1.5; padding-left: 24px; position: relative; }
+  .col.bad ul li::before { content: "✗"; position: absolute; left: 0; color: #D93025; font-weight: 700; }
+  .col.good ul li::before { content: "✓"; position: absolute; left: 0; color: #1E8850; font-weight: 700; }
+  .footer { text-align: center; margin-top: 40px; font-size: 20px; color: #666; }
+</style>
+</head><body>
+  <h1>Representation Learning</h1>
+  <div class="accent"></div>
+  <div class="subtitle">Como cambio la jerarquia de conceptos tras el arreglo</div>
+  <div class="cols">
+    <div class="col bad">
+      <h3>Sin Regularizacion</h3>
+      <div class="line"></div>
+      <ul>
+        <li>Memoriza el ruido de cada muestra</li>
+        <li>Las features internas no son transferibles a datos nuevos</li>
+        <li>No aprende conceptos generales (bordes, texturas, formas)</li>
+        <li>Cada neurona se sobreactiva para casos puntuales</li>
+      </ul>
+    </div>
+    <div class="col good">
+      <h3>Con Regularizacion</h3>
+      <div class="line"></div>
+      <ul>
+        <li>Captura patrones reales: distribuciones y correlaciones</li>
+        <li>Features compartidas entre muestras similares</li>
+        <li>Capas intermedias actuan como detectores de patrones</li>
+        <li>Jerarquia: features simples → features complejas</li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer">La regularizacion fuerza a la red a buscar patrones compartidos en vez de memorizar caso por caso.</div>
+</body></html>
