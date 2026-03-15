@@ -6,817 +6,850 @@
     <title>Tinygrad: Autograd y Grafos de Computacion | Presentacion</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;500&display=swap');
-
         * { margin: 0; padding: 0; box-sizing: border-box; }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            background: #0a0a0a;
-            color: #fff;
-            overflow: hidden;
-            height: 100vh;
-        }
-
-        .slide {
-            display: none;
-            width: 100vw;
-            height: 100vh;
-            padding: 60px 80px;
-            flex-direction: column;
-            justify-content: center;
-        }
+        body { font-family: 'Inter', sans-serif; background: #0a0a0a; color: #fff; overflow: hidden; height: 100vh; }
+        .slide { display: none; width: 100vw; height: 100vh; padding: 50px 70px; flex-direction: column; justify-content: center; }
         .slide.active { display: flex; }
 
-        /* ===== SLIDE STYLES ===== */
+        /* === COMMON === */
+        .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 35px; }
+        .three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
+        .card { border-radius: 14px; padding: 25px; }
+        .mono { font-family: 'JetBrains Mono', monospace; }
+        .formula { background: rgba(0,0,0,0.4); padding: 14px 20px; border-radius: 10px; font-family: 'JetBrains Mono', monospace; text-align: center; font-size: 1.15em; color: #f1fa8c; margin: 12px 0; }
+        .highlight { color: #50fa7b; font-weight: 700; }
+        .highlight-y { color: #f1fa8c; font-weight: 700; }
+        .highlight-r { color: #ff6b6b; font-weight: 700; }
+        .highlight-b { color: #48cae4; font-weight: 700; }
+        .highlight-p { color: #bd93f9; font-weight: 700; }
+        .small { font-size: 0.85em; color: #888; }
+        .tag { display: inline-block; padding: 3px 10px; border-radius: 6px; font-size: 0.8em; font-weight: 600; }
+        .anim-fade { animation: fadeUp 0.6s ease-out; }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+
+        /* Node/graph styles */
+        .node { display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; font-weight: 700; }
+        .node-sm { width: 44px; height: 44px; font-size: 0.85em; }
+        .node-md { width: 56px; height: 56px; font-size: 1em; }
+        .op-node { background: #e63946; color: white; }
+        .val-node { background: #0e4d92; color: white; }
+        .grad-node { background: #2d6a4f; color: white; }
+        .arrow { color: #666; font-size: 1.4em; margin: 0 6px; }
+
+        /* Code block */
+        .code { background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 20px; font-family: 'JetBrains Mono', monospace; font-size: 0.88em; color: #e0e0e0; line-height: 1.65; white-space: pre; overflow-x: auto; }
+        .code .kw { color: #ff79c6; } .code .fn { color: #50fa7b; } .code .cm { color: #6272a4; } .code .st { color: #f1fa8c; } .code .num { color: #bd93f9; }
+
+        /* Example box */
+        .example-box { background: rgba(80,250,123,0.06); border: 1px solid rgba(80,250,123,0.25); border-radius: 14px; padding: 25px; }
+        .example-box h3 { color: #50fa7b; font-size: 1.15em; margin-bottom: 12px; }
+        .example-box.warn { background: rgba(230,57,70,0.06); border-color: rgba(230,57,70,0.25); }
+        .example-box.warn h3 { color: #ff6b6b; }
+        .example-box.blue { background: rgba(72,202,228,0.06); border-color: rgba(72,202,228,0.25); }
+        .example-box.blue h3 { color: #48cae4; }
+        .example-box.purple { background: rgba(189,147,249,0.06); border-color: rgba(189,147,249,0.25); }
+        .example-box.purple h3 { color: #bd93f9; }
+
+        /* Step indicator */
+        .step-num { display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px; border-radius: 50%; font-weight: 700; font-size: 0.9em; margin-right: 8px; flex-shrink: 0; }
 
         /* Portada */
-        .slide-portada {
-            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
-            text-align: center;
-            align-items: center;
-        }
-        .slide-portada .icon { font-size: 90px; margin-bottom: 20px; }
-        .slide-portada h1 { font-size: 3.2em; font-weight: 900; margin-bottom: 10px; line-height: 1.1; }
-        .slide-portada h2 { font-size: 1.6em; font-weight: 300; color: #a8a8ff; margin-bottom: 30px; }
-        .slide-portada .meta {
-            font-size: 1em; color: #888; max-width: 650px;
-            border-top: 2px solid #444; padding-top: 20px;
-        }
+        .slide-portada { background: linear-gradient(135deg, #0f0c29, #302b63, #24243e); text-align: center; align-items: center; }
+        .slide-portada h1 { font-size: 3em; font-weight: 900; margin-bottom: 10px; line-height: 1.15; }
+        .slide-portada h2 { font-size: 1.5em; font-weight: 300; color: #a8a8ff; margin-bottom: 25px; }
+        .slide-portada .meta { font-size: 0.95em; color: #888; max-width: 650px; border-top: 2px solid #444; padding-top: 18px; }
 
-        /* Agenda */
-        .slide-agenda {
-            background: linear-gradient(135deg, #1a1a2e, #16213e);
-        }
-        .slide-agenda h2 { font-size: 2.5em; color: #50fa7b; margin-bottom: 35px; }
-        .agenda-list { list-style: none; }
-        .agenda-list li {
-            font-size: 1.3em; padding: 14px 22px; margin-bottom: 10px;
-            background: rgba(80,250,123,0.06); border-left: 4px solid #50fa7b;
-            border-radius: 0 10px 10px 0; color: #ddd;
-        }
-        .agenda-list li span { color: #50fa7b; font-weight: 700; margin-right: 12px; }
-
-        /* Contexto */
-        .slide-contexto {
-            background: linear-gradient(135deg, #0d1b2a, #1b2838);
-        }
-        .slide-contexto h2 { font-size: 2.5em; color: #48cae4; margin-bottom: 30px; }
-        .stats-grid {
-            display: grid; grid-template-columns: repeat(3, 1fr); gap: 25px; margin-bottom: 30px;
-        }
-        .stat-card {
-            background: rgba(72,202,228,0.1); border: 1px solid rgba(72,202,228,0.3);
-            border-radius: 16px; padding: 25px; text-align: center;
-        }
-        .stat-card .number { font-size: 3em; font-weight: 900; color: #48cae4; display: block; }
-        .stat-card .label { font-size: 0.95em; color: #aaa; margin-top: 5px; }
-        .context-text { font-size: 1.15em; color: #ccc; line-height: 1.7; max-width: 800px; }
-
-        /* Que es Autograd */
-        .slide-autograd {
-            background: linear-gradient(135deg, #1a0a2e, #2d1b69);
-        }
-        .slide-autograd h2 { font-size: 2.5em; color: #bd93f9; margin-bottom: 25px; }
-        .two-col {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 40px;
-        }
-        .col-card {
-            background: rgba(189,147,249,0.08); border: 1px solid rgba(189,147,249,0.2);
-            border-radius: 16px; padding: 30px;
-        }
-        .col-card h3 { color: #bd93f9; font-size: 1.3em; margin-bottom: 15px; }
-        .col-card p, .col-card li { color: #ccc; font-size: 1.05em; line-height: 1.6; }
-        .col-card ul { margin-left: 20px; margin-top: 10px; }
-        .formula-box {
-            background: rgba(0,0,0,0.3); padding: 15px; border-radius: 10px;
-            font-family: 'JetBrains Mono', monospace; text-align: center;
-            font-size: 1.2em; color: #f1fa8c; margin: 15px 0;
-        }
-
-        /* Grafo */
-        .slide-grafo {
-            background: linear-gradient(135deg, #0a2e1a, #1b4332);
-        }
-        .slide-grafo h2 { font-size: 2.5em; color: #50fa7b; margin-bottom: 25px; }
-        .diagram-box {
-            background: rgba(0,0,0,0.4); border: 1px solid rgba(80,250,123,0.3);
-            border-radius: 16px; padding: 30px;
-            font-family: 'JetBrains Mono', monospace; font-size: 0.95em;
-            color: #50fa7b; white-space: pre; line-height: 1.5;
-            margin-bottom: 20px;
-        }
-        .grafo-desc { font-size: 1.1em; color: #ccc; line-height: 1.6; }
-        .grafo-desc strong { color: #50fa7b; }
-
-        /* Backprop */
-        .slide-backprop {
-            background: linear-gradient(135deg, #2e0a0a, #4a1a1a);
-        }
-        .slide-backprop h2 { font-size: 2.5em; color: #ff6b6b; margin-bottom: 25px; }
-        .steps-grid {
-            display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;
-        }
-        .step-card {
-            background: rgba(255,107,107,0.08); border: 1px solid rgba(255,107,107,0.2);
-            border-radius: 14px; padding: 22px;
-        }
-        .step-card .step-num {
-            background: #ff6b6b; color: #fff; width: 32px; height: 32px;
-            border-radius: 50%; display: inline-flex; align-items: center;
-            justify-content: center; font-weight: 700; margin-bottom: 10px;
-        }
-        .step-card h4 { color: #ff6b6b; font-size: 1.1em; margin-bottom: 8px; }
-        .step-card p { color: #ccc; font-size: 0.95em; line-height: 1.5; }
-
-        /* Gradientes tabla */
-        .slide-gradientes {
-            background: linear-gradient(135deg, #1a1a00, #2e2e00);
-        }
-        .slide-gradientes h2 { font-size: 2.5em; color: #f1fa8c; margin-bottom: 25px; }
-        .grad-table {
-            width: 100%; border-collapse: collapse; margin-top: 10px;
-        }
-        .grad-table th {
-            background: rgba(241,250,140,0.2); color: #f1fa8c;
-            padding: 14px 20px; text-align: left; font-size: 1.1em;
-        }
-        .grad-table td {
-            padding: 12px 20px; border-bottom: 1px solid rgba(255,255,255,0.1);
-            color: #ddd; font-size: 1em;
-        }
-        .grad-table code {
-            font-family: 'JetBrains Mono', monospace; color: #50fa7b;
-            background: rgba(0,0,0,0.3); padding: 2px 6px; border-radius: 4px;
-        }
-
-        /* Tinygrad Arquitectura */
-        .slide-arquitectura {
-            background: linear-gradient(135deg, #0a1a2e, #162d50);
-        }
-        .slide-arquitectura h2 { font-size: 2.5em; color: #48cae4; margin-bottom: 20px; }
-        .arch-flow {
-            display: flex; flex-direction: column; align-items: center; gap: 8px;
-        }
-        .arch-box {
-            background: rgba(72,202,228,0.12); border: 2px solid rgba(72,202,228,0.4);
-            border-radius: 14px; padding: 18px 50px; text-align: center;
-            width: 500px;
-        }
-        .arch-box h4 { color: #48cae4; font-size: 1.1em; }
-        .arch-box p { color: #aaa; font-size: 0.9em; margin-top: 4px; }
-        .arch-arrow { color: #48cae4; font-size: 1.8em; }
-
-        /* Lazy vs Eager */
-        .slide-lazy {
-            background: linear-gradient(135deg, #1a0a00, #3d1c00);
-        }
-        .slide-lazy h2 { font-size: 2.5em; color: #ff8c00; margin-bottom: 25px; }
-        .comparison-grid {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 30px;
-        }
-        .comp-card {
-            border-radius: 16px; padding: 30px;
-        }
-        .comp-card.eager {
-            background: rgba(230,57,70,0.1); border: 1px solid rgba(230,57,70,0.3);
-        }
-        .comp-card.lazy {
-            background: rgba(45,106,79,0.15); border: 1px solid rgba(45,106,79,0.4);
-        }
-        .comp-card h3 { font-size: 1.3em; margin-bottom: 15px; }
-        .comp-card.eager h3 { color: #e63946; }
-        .comp-card.lazy h3 { color: #50fa7b; }
-        .comp-card pre {
-            background: rgba(0,0,0,0.4); padding: 15px; border-radius: 10px;
-            font-family: 'JetBrains Mono', monospace; font-size: 0.85em;
-            color: #e0e0e0; margin: 10px 0; line-height: 1.5;
-        }
-        .comp-card .result { color: #aaa; font-size: 0.95em; margin-top: 10px; }
-
-        /* Fusion */
-        .slide-fusion {
-            background: linear-gradient(135deg, #001a0a, #002d15);
-        }
-        .slide-fusion h2 { font-size: 2.5em; color: #50fa7b; margin-bottom: 20px; }
-        .fusion-compare {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 30px;
-        }
-        .fusion-card {
-            border-radius: 16px; padding: 25px; text-align: center;
-        }
-        .fusion-card.bad {
-            background: rgba(230,57,70,0.1); border: 1px solid rgba(230,57,70,0.3);
-        }
-        .fusion-card.good {
-            background: rgba(80,250,123,0.08); border: 1px solid rgba(80,250,123,0.3);
-        }
-        .fusion-card h3 { margin-bottom: 15px; font-size: 1.2em; }
-        .fusion-card.bad h3 { color: #e63946; }
-        .fusion-card.good h3 { color: #50fa7b; }
-        .fusion-step {
-            padding: 10px; margin: 6px 0; border-radius: 8px;
-            font-family: 'JetBrains Mono', monospace; font-size: 0.9em;
-        }
-        .fusion-step.mem { background: rgba(74,78,105,0.5); color: #aaa; }
-        .fusion-step.kern { background: rgba(230,57,70,0.2); color: #ff6b6b; }
-        .fusion-step.fused { background: rgba(80,250,123,0.15); color: #50fa7b; }
-
-        /* UOps */
-        .slide-uops {
-            background: linear-gradient(135deg, #1a0a2e, #301060);
-        }
-        .slide-uops h2 { font-size: 2.5em; color: #bd93f9; margin-bottom: 25px; }
-        .uops-grid {
-            display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px;
-            margin-bottom: 25px;
-        }
-        .uop-card {
-            background: rgba(189,147,249,0.1); border: 1px solid rgba(189,147,249,0.3);
-            border-radius: 12px; padding: 15px; text-align: center;
-        }
-        .uop-card .cat { color: #bd93f9; font-weight: 700; font-size: 0.85em; margin-bottom: 6px; }
-        .uop-card .ops {
-            font-family: 'JetBrains Mono', monospace; font-size: 0.8em; color: #ccc;
-        }
-        .uop-insight {
-            background: rgba(189,147,249,0.08); border-radius: 12px;
-            padding: 20px; color: #ccc; font-size: 1.05em; line-height: 1.6;
-        }
-        .uop-insight strong { color: #bd93f9; }
-
-        /* Comparativa Frameworks */
-        .slide-comparativa {
-            background: linear-gradient(135deg, #1a1a2e, #0d1117);
-        }
-        .slide-comparativa h2 { font-size: 2.5em; color: #48cae4; margin-bottom: 20px; }
-        .fw-table {
-            width: 100%; border-collapse: collapse;
-        }
-        .fw-table th {
-            padding: 14px 18px; text-align: center; font-size: 1em;
-        }
-        .fw-table th:nth-child(1) { background: rgba(255,255,255,0.05); color: #888; text-align: left; }
-        .fw-table th:nth-child(2) { background: rgba(230,57,70,0.2); color: #ff6b6b; }
-        .fw-table th:nth-child(3) { background: rgba(80,250,123,0.15); color: #50fa7b; }
-        .fw-table th:nth-child(4) { background: rgba(255,140,0,0.15); color: #ff8c00; }
-        .fw-table td {
-            padding: 10px 18px; border-bottom: 1px solid rgba(255,255,255,0.06);
-            color: #ccc; font-size: 0.95em; text-align: center;
-        }
-        .fw-table td:first-child { text-align: left; color: #888; font-weight: 600; }
-
-        /* Negocio */
-        .slide-negocio {
-            background: linear-gradient(135deg, #0a2e1a, #1a4a2e);
-        }
-        .slide-negocio h2 { font-size: 2.5em; color: #50fa7b; margin-bottom: 25px; }
-        .biz-grid {
-            display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;
-        }
-        .biz-card {
-            background: rgba(80,250,123,0.06); border: 1px solid rgba(80,250,123,0.2);
-            border-radius: 14px; padding: 25px;
-        }
-        .biz-card h3 { color: #50fa7b; font-size: 1.15em; margin-bottom: 10px; }
-        .biz-card p { color: #ccc; font-size: 0.95em; line-height: 1.5; }
-
-        /* Demo */
-        .slide-demo {
-            background: linear-gradient(135deg, #1a0a2e, #2d1060);
-        }
-        .slide-demo h2 { font-size: 2.5em; color: #f1fa8c; margin-bottom: 20px; }
-        .code-block {
-            background: rgba(0,0,0,0.5); border: 1px solid rgba(241,250,140,0.2);
-            border-radius: 14px; padding: 25px;
-            font-family: 'JetBrains Mono', monospace; font-size: 0.9em;
-            color: #e0e0e0; line-height: 1.6; white-space: pre;
-        }
-        .code-block .kw { color: #ff79c6; }
-        .code-block .fn { color: #50fa7b; }
-        .code-block .cm { color: #6272a4; }
-        .code-block .st { color: #f1fa8c; }
-        .code-block .num { color: #bd93f9; }
-
-        /* Conclusiones */
-        .slide-conclusiones {
-            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
-        }
-        .slide-conclusiones h2 { font-size: 2.5em; color: #50fa7b; margin-bottom: 30px; }
-        .conclusion-list { list-style: none; }
-        .conclusion-list li {
-            font-size: 1.2em; padding: 16px 22px; margin-bottom: 12px;
-            background: rgba(80,250,123,0.06); border-left: 4px solid #50fa7b;
-            border-radius: 0 10px 10px 0; color: #ddd; line-height: 1.5;
-        }
-        .conclusion-list li strong { color: #50fa7b; }
-
-        /* Cierre */
-        .slide-cierre {
-            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
-            text-align: center; align-items: center;
-        }
-        .slide-cierre h1 { font-size: 3em; font-weight: 900; margin-bottom: 20px; }
-        .slide-cierre h2 { font-size: 1.5em; font-weight: 300; color: #a8a8ff; margin-bottom: 15px; }
-        .slide-cierre .link {
-            font-family: 'JetBrains Mono', monospace; font-size: 1.2em;
-            color: #50fa7b; margin: 15px 0;
-        }
-        .slide-cierre .thanks { font-size: 1.3em; color: #888; margin-top: 30px; }
+        /* Generic slide themes */
+        .bg-dark { background: linear-gradient(135deg, #1a1a2e, #16213e); }
+        .bg-green { background: linear-gradient(135deg, #0a2e1a, #1b4332); }
+        .bg-purple { background: linear-gradient(135deg, #1a0a2e, #2d1b69); }
+        .bg-red { background: linear-gradient(135deg, #2e0a0a, #4a1a1a); }
+        .bg-blue { background: linear-gradient(135deg, #0d1b2a, #1b2838); }
+        .bg-orange { background: linear-gradient(135deg, #1a0a00, #3d1c00); }
+        .bg-yellow { background: linear-gradient(135deg, #1a1a00, #2e2e00); }
 
         /* Navigation */
-        .nav {
-            position: fixed; bottom: 25px; right: 30px;
-            display: flex; gap: 10px; z-index: 100;
-        }
-        .nav button {
-            background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
-            color: white; padding: 10px 20px; border-radius: 8px;
-            cursor: pointer; font-size: 1em; font-family: 'Inter', sans-serif;
-            transition: all 0.2s;
-        }
+        .nav { position: fixed; bottom: 20px; right: 25px; display: flex; gap: 8px; z-index: 100; }
+        .nav button { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 8px 18px; border-radius: 8px; cursor: pointer; font-size: 0.95em; font-family: 'Inter', sans-serif; transition: all 0.2s; }
         .nav button:hover { background: rgba(255,255,255,0.2); }
+        .slide-counter { position: fixed; bottom: 25px; left: 25px; color: #444; font-size: 0.85em; z-index: 100; }
+        .progress-bar { position: fixed; top: 0; left: 0; height: 3px; background: #50fa7b; z-index: 100; transition: width 0.3s; }
 
-        .slide-counter {
-            position: fixed; bottom: 30px; left: 30px;
-            color: #555; font-size: 0.9em; z-index: 100;
-        }
+        /* Specific overrides */
+        .slide h2.title { font-size: 2.3em; margin-bottom: 25px; }
+        .slide h2.title-green { font-size: 2.3em; margin-bottom: 25px; color: #50fa7b; }
+        .slide h2.title-purple { font-size: 2.3em; margin-bottom: 25px; color: #bd93f9; }
+        .slide h2.title-red { font-size: 2.3em; margin-bottom: 25px; color: #ff6b6b; }
+        .slide h2.title-blue { font-size: 2.3em; margin-bottom: 25px; color: #48cae4; }
+        .slide h2.title-yellow { font-size: 2.3em; margin-bottom: 25px; color: #f1fa8c; }
+        .slide h2.title-orange { font-size: 2.3em; margin-bottom: 25px; color: #ff8c00; }
 
-        .progress-bar {
-            position: fixed; top: 0; left: 0; height: 3px;
-            background: #50fa7b; z-index: 100; transition: width 0.3s;
-        }
+        .flow-row { display: flex; align-items: center; justify-content: center; gap: 8px; margin: 8px 0; flex-wrap: wrap; }
+        .flow-box { background: rgba(72,202,228,0.12); border: 2px solid rgba(72,202,228,0.4); border-radius: 12px; padding: 12px 22px; text-align: center; min-width: 140px; }
+        .flow-box h4 { color: #48cae4; font-size: 0.95em; }
+        .flow-box p { color: #888; font-size: 0.8em; margin-top: 3px; }
+        .flow-arrow { color: #48cae4; font-size: 1.6em; }
+
+        .timeline { position: relative; margin: 15px 0; padding-left: 30px; }
+        .timeline::before { content: ''; position: absolute; left: 12px; top: 0; bottom: 0; width: 2px; background: rgba(255,255,255,0.15); }
+        .timeline-item { position: relative; margin-bottom: 14px; padding-left: 20px; }
+        .timeline-item::before { content: ''; position: absolute; left: -22px; top: 6px; width: 10px; height: 10px; border-radius: 50%; }
+        .timeline-item.done::before { background: #50fa7b; }
+        .timeline-item.active::before { background: #f1fa8c; animation: pulse 1s infinite; }
+        .timeline-item.pending::before { background: #444; }
+
+        /* Stats */
+        .stat-row { display: flex; gap: 20px; margin: 15px 0; }
+        .stat-box { flex: 1; background: rgba(72,202,228,0.1); border: 1px solid rgba(72,202,228,0.3); border-radius: 14px; padding: 20px; text-align: center; }
+        .stat-box .val { font-size: 2.5em; font-weight: 900; color: #48cae4; display: block; }
+        .stat-box .lbl { font-size: 0.85em; color: #888; margin-top: 4px; }
+
+        /* Table */
+        .comp-table { width: 100%; border-collapse: collapse; font-size: 0.92em; }
+        .comp-table th { padding: 12px 16px; text-align: center; }
+        .comp-table td { padding: 10px 16px; border-bottom: 1px solid rgba(255,255,255,0.06); color: #ccc; text-align: center; }
+        .comp-table td:first-child { text-align: left; color: #888; font-weight: 600; }
     </style>
 </head>
 <body>
-
 <div class="progress-bar" id="progressBar"></div>
 
-<!-- SLIDE 1: PORTADA -->
+<!-- ==================== SLIDE 1: PORTADA ==================== -->
 <div class="slide slide-portada active" id="slide1">
-    <div class="icon">&#9881;</div>
+    <div style="font-size:80px; margin-bottom:15px;">&#9881;</div>
     <h1>Tinygrad: Autograd y Grafos<br>de Computacion desde Cero</h1>
     <h2>Bloque B: Ingenieria y Frameworks</h2>
     <div class="meta">
         Universidad Privada del Norte - Escuela de Posgrado<br>
         Deep Learning | Marzo 2026<br><br>
-        <span style="color:#50fa7b">github.com/tinygrad/tinygrad</span>
+        <span style="color:#50fa7b; font-family:'JetBrains Mono',monospace;">github.com/tinygrad/tinygrad</span>
     </div>
 </div>
 
-<!-- SLIDE 2: AGENDA -->
-<div class="slide slide-agenda" id="slide2">
-    <h2>Agenda</h2>
-    <ul class="agenda-list">
-        <li><span>01</span> Que es Tinygrad y por que importa</li>
-        <li><span>02</span> Diferenciacion Automatica (Autograd)</li>
-        <li><span>03</span> Grafos de Computacion</li>
-        <li><span>04</span> Backpropagation paso a paso</li>
-        <li><span>05</span> Arquitectura de Tinygrad</li>
-        <li><span>06</span> Evaluacion Lazy vs Eager</li>
-        <li><span>07</span> Fusion de Kernels</li>
-        <li><span>08</span> Comparativa con PyTorch</li>
-        <li><span>09</span> Valor de Negocio</li>
-        <li><span>10</span> Demo y Conclusiones</li>
-    </ul>
-</div>
-
-<!-- SLIDE 3: CONTEXTO -->
-<div class="slide slide-contexto" id="slide3">
-    <h2>Que es Tinygrad?</h2>
-    <div class="stats-grid">
-        <div class="stat-card">
-            <span class="number">~19K</span>
-            <span class="label">Lineas de codigo</span>
-        </div>
-        <div class="stat-card">
-            <span class="number">65B</span>
-            <span class="label">Parametros (LLaMA)</span>
-        </div>
-        <div class="stat-card">
-            <span class="number">6+</span>
-            <span class="label">Backends GPU</span>
-        </div>
-    </div>
-    <p class="context-text">
-        Framework de deep learning creado por <strong style="color:#48cae4">George Hotz</strong> (2020).
-        Demuestra que un motor de redes neuronales completo NO necesita millones de lineas de codigo.
-        Ejecuta modelos de produccion reales: LLaMA-65B, Stable Diffusion, Whisper.
-    </p>
-</div>
-
-<!-- SLIDE 4: QUE ES AUTOGRAD -->
-<div class="slide slide-autograd" id="slide4">
-    <h2>Diferenciacion Automatica</h2>
+<!-- ==================== SLIDE 2: AGENDA ==================== -->
+<div class="slide bg-dark" id="slide2">
+    <h2 class="title-green">Agenda</h2>
     <div class="two-col">
-        <div class="col-card">
-            <h3>El Problema</h3>
-            <p>Entrenar una red neuronal requiere calcular <strong style="color:#bd93f9">gradientes</strong> de la funcion de perdida respecto a TODOS los parametros.</p>
-            <ul>
-                <li>Millones de parametros</li>
-                <li>Funciones muy complejas</li>
-                <li>Necesitamos precision exacta</li>
-            </ul>
-        </div>
-        <div class="col-card">
-            <h3>La Solucion: Autodiff</h3>
-            <p>Usar la <strong style="color:#bd93f9">regla de la cadena</strong> sistematicamente:</p>
-            <div class="formula-box">
-                dz/dx = dz/dy &middot; dy/dx
+        <div>
+            <div class="timeline">
+                <div class="timeline-item done"><span class="highlight">01.</span> Que es Tinygrad y por que importa</div>
+                <div class="timeline-item done"><span class="highlight">02.</span> El problema: como aprende una red neuronal?</div>
+                <div class="timeline-item done"><span class="highlight">03.</span> Derivadas: repaso con ejemplo numerico</div>
+                <div class="timeline-item done"><span class="highlight">04.</span> Autograd: derivadas automaticas</div>
+                <div class="timeline-item done"><span class="highlight">05.</span> Ejemplo concreto con numeros</div>
             </div>
-            <p>Exacto, eficiente, automatico. Una sola pasada backward calcula TODOS los gradientes.</p>
+        </div>
+        <div>
+            <div class="timeline">
+                <div class="timeline-item done"><span class="highlight">06.</span> Grafo de computacion: que es y para que sirve</div>
+                <div class="timeline-item done"><span class="highlight">07.</span> Backpropagation: el algoritmo completo</div>
+                <div class="timeline-item done"><span class="highlight">08.</span> Demo: entrenando una neurona paso a paso</div>
+                <div class="timeline-item done"><span class="highlight">09.</span> Arquitectura de Tinygrad</div>
+                <div class="timeline-item done"><span class="highlight">10.</span> Lazy vs Eager + Fusion de Kernels</div>
+                <div class="timeline-item done"><span class="highlight">11.</span> Valor de negocio y conclusiones</div>
+            </div>
         </div>
     </div>
 </div>
 
-<!-- SLIDE 5: TIPOS DE DIFERENCIACION -->
-<div class="slide slide-autograd" id="slide5">
-    <h2>Por que Autodiff?</h2>
+<!-- ==================== SLIDE 3: QUE ES TINYGRAD ==================== -->
+<div class="slide bg-blue" id="slide3">
+    <h2 class="title-blue">Que es Tinygrad?</h2>
+    <div class="stat-row">
+        <div class="stat-box"><span class="val">~19K</span><span class="lbl">Lineas de codigo</span></div>
+        <div class="stat-box"><span class="val">65B</span><span class="lbl">Parametros (corre LLaMA)</span></div>
+        <div class="stat-box"><span class="val">6+</span><span class="lbl">Backends (CUDA, Metal, etc.)</span></div>
+    </div>
+    <div class="two-col" style="margin-top:20px;">
+        <div class="example-box blue">
+            <h3>Analogia: Receta de cocina</h3>
+            <p style="color:#ccc; line-height:1.6;">
+                Imagina que PyTorch es un <strong style="color:#48cae4">restaurante de 5 estrellas</strong> con 500 empleados, cocina industrial y miles de recetas.<br><br>
+                Tinygrad es un <strong style="color:#48cae4">chef experto solo</strong> en su cocina: con 19,000 instrucciones hace los MISMOS platos. Menos gente, misma calidad.
+            </p>
+        </div>
+        <div class="example-box blue">
+            <h3>Creado por George Hotz (2020)</h3>
+            <p style="color:#ccc; line-height:1.6;">
+                El mismo hacker que desbloqueo el iPhone y hackeo la PlayStation 3.<br><br>
+                Su meta: demostrar que la complejidad de PyTorch (millones de lineas) <strong style="color:#ff6b6b">NO es necesaria</strong>.<br><br>
+                Ejecuta modelos reales: <span class="mono" style="color:#50fa7b">LLaMA, Stable Diffusion, Whisper</span>
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== SLIDE 4: EL PROBLEMA ==================== -->
+<div class="slide bg-red" id="slide4">
+    <h2 class="title-red">El Problema: Como aprende una red neuronal?</h2>
     <div class="two-col">
-        <div class="col-card">
-            <h3>Alternativas</h3>
-            <ul>
-                <li><strong style="color:#e63946">Simbolica</strong>: Exacta pero las expresiones explotan en tamano</li>
-                <li><strong style="color:#ff8c00">Numerica</strong>: Aproximada, O(n) evaluaciones, error de redondeo</li>
-                <li><strong style="color:#50fa7b">Automatica</strong>: Exacta, O(1) respecto al forward, eficiente</li>
-            </ul>
+        <div class="example-box warn">
+            <h3>Una red neuronal simple</h3>
+            <p style="color:#ccc; line-height:1.7; font-size:1.05em;">
+                Imagina una red que predice precios de casas:<br><br>
+                <span class="mono" style="color:#f1fa8c;">precio = peso x area + bias</span><br><br>
+                Al inicio, los pesos son <strong style="color:#ff6b6b">aleatorios</strong>. La red se equivoca.<br><br>
+                <strong style="color:#ff6b6b">Pregunta clave:</strong> como sabe la red <em>en que direccion</em> y <em>cuanto</em> cambiar cada peso para equivocarse menos?
+            </p>
         </div>
-        <div class="col-card">
-            <h3>Reverse Mode (Backprop)</h3>
-            <p>En DL tenemos:</p>
-            <ul>
-                <li>Millones de <strong style="color:#bd93f9">entradas</strong> (parametros)</li>
-                <li>UNA <strong style="color:#bd93f9">salida</strong> (loss escalar)</li>
-            </ul>
-            <div class="formula-box">
-                Reverse mode: 1 pasada = TODOS los gradientes
+        <div class="example-box warn">
+            <h3>La respuesta: GRADIENTES</h3>
+            <p style="color:#ccc; line-height:1.7; font-size:1.05em;">
+                El <strong style="color:#f1fa8c">gradiente</strong> nos dice:<br><br>
+                1. <strong style="color:#50fa7b">Direccion:</strong> subir o bajar el peso?<br>
+                2. <strong style="color:#50fa7b">Magnitud:</strong> cuanto cambiarlo?<br><br>
+                Es como una <strong style="color:#48cae4">brujula</strong> que apunta hacia el error minimo.<br><br>
+                <span class="mono" style="font-size:0.9em; color:#f1fa8c;">peso_nuevo = peso - tasa * gradiente</span>
+            </p>
+        </div>
+    </div>
+    <p style="color:#ff6b6b; text-align:center; margin-top:20px; font-size:1.1em; font-weight:600;">
+        Pero una red real tiene MILLONES de pesos... como calcular millones de gradientes?
+    </p>
+</div>
+
+<!-- ==================== SLIDE 5: DERIVADAS REPASO ==================== -->
+<div class="slide bg-purple" id="slide5">
+    <h2 class="title-purple">Repaso: Que es una derivada?</h2>
+    <div class="two-col">
+        <div class="example-box purple">
+            <h3>Ejemplo con numeros</h3>
+            <p style="color:#ccc; line-height:1.8; font-size:1.05em;">
+                Funcion: <span class="mono highlight-y">f(x) = x&sup2;</span><br><br>
+                Si <span class="highlight-p">x = 3</span>, entonces <span class="highlight-y">f(3) = 9</span><br><br>
+                La derivada <span class="mono highlight-p">f'(x) = 2x</span> nos dice:<br>
+                "Si muevo x un poquito, cuanto cambia f?"<br><br>
+                <span class="highlight-p">f'(3) = 2 &times; 3 = 6</span><br><br>
+                Significa: si x sube de 3.0 a 3.001,<br>
+                f sube <strong style="color:#50fa7b">~6 veces mas</strong> (de 9.0 a 9.006)
+            </p>
+        </div>
+        <div class="example-box purple">
+            <h3>Verificacion numerica</h3>
+            <div class="code" style="font-size:0.85em; margin-bottom:15px;">
+<span class="cm"># Verificamos con numeros reales:</span>
+x = <span class="num">3.0</span>
+h = <span class="num">0.001</span>  <span class="cm"># paso muy pequeno</span>
+
+f_x     = x ** <span class="num">2</span>        <span class="cm"># = 9.000</span>
+f_x_h   = (x + h) ** <span class="num">2</span>  <span class="cm"># = 9.006001</span>
+
+derivada = (f_x_h - f_x) / h
+<span class="cm"># = (9.006001 - 9.000) / 0.001</span>
+<span class="cm"># = 6.001  (casi exacto!)</span></div>
+            <p style="color:#ccc; line-height:1.6;">
+                <strong style="color:#bd93f9">Derivada = pendiente</strong> de la funcion en ese punto.<br><br>
+                En deep learning, la derivada del <strong>loss</strong> respecto a un <strong>peso</strong> nos dice como ajustar ese peso.
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== SLIDE 6: REGLA DE LA CADENA ==================== -->
+<div class="slide bg-purple" id="slide6">
+    <h2 class="title-purple">La Regla de la Cadena: El Truco Clave</h2>
+    <div class="example-box purple" style="margin-bottom:20px;">
+        <h3>Problema: funciones compuestas</h3>
+        <p style="color:#ccc; font-size:1.05em; line-height:1.7;">
+            En una red, las funciones estan <strong style="color:#bd93f9">anidadas</strong>:
+            <span class="mono highlight-y" style="font-size:1.1em;"> loss = MSE( relu( W2 &times; relu( W1 &times; x + b1 ) + b2 ) , y )</span><br>
+            Como derivar esta cadena entera respecto a W1?
+        </p>
+    </div>
+    <div class="two-col">
+        <div class="example-box purple">
+            <h3>La Regla de la Cadena</h3>
+            <div class="formula">Si z = f(g(x)), entonces: dz/dx = dz/dy &times; dy/dx</div>
+            <p style="color:#ccc; line-height:1.7;">
+                <strong style="color:#bd93f9">Idea simple:</strong> descomponer la derivada de una funcion compuesta en el PRODUCTO de derivadas simples.
+            </p>
+        </div>
+        <div class="example-box purple">
+            <h3>Ejemplo con numeros</h3>
+            <p style="color:#ccc; line-height:1.7; font-size:1.02em;">
+                <span class="mono">y = 2x &rarr; dy/dx = <span class="highlight-p">2</span></span><br>
+                <span class="mono">z = y&sup2; &rarr; dz/dy = <span class="highlight-p">2y</span></span><br><br>
+                Si <span class="highlight-p">x = 3</span>: y = 6, z = 36<br><br>
+                <span class="mono">dz/dx = dz/dy &times; dy/dx</span><br>
+                <span class="mono">dz/dx = <span class="highlight-p">2&times;6</span> &times; <span class="highlight-p">2</span> = <span class="highlight" style="font-size:1.2em;">24</span></span><br><br>
+                Verificacion: si x=3.001, z=(2&times;3.001)&sup2;=36.024<br>
+                (36.024-36)/0.001 = <strong style="color:#50fa7b">24</strong> &#10004;
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== SLIDE 7: AUTOGRAD - LA IDEA ==================== -->
+<div class="slide bg-green" id="slide7">
+    <h2 class="title-green">Autograd: Derivadas Automaticas</h2>
+    <div class="example-box" style="margin-bottom:20px;">
+        <h3>La idea genial</h3>
+        <p style="color:#ccc; font-size:1.1em; line-height:1.7;">
+            En vez de calcular derivadas a mano, cada operacion <strong style="color:#50fa7b">recuerda</strong> como calcular su derivada.
+            Despues, encadenamos todas las derivadas automaticamente. Eso es <strong style="color:#50fa7b">autograd</strong>.
+        </p>
+    </div>
+    <div class="two-col">
+        <div class="example-box">
+            <h3>Cada operacion sabe su derivada</h3>
+            <div class="code" style="font-size:0.88em;">
+<span class="cm"># SUMA: c = a + b</span>
+<span class="cm"># dc/da = 1, dc/db = 1</span>
+<span class="cm"># "El gradiente pasa directo"</span>
+
+<span class="cm"># MULTIPLICACION: c = a * b</span>
+<span class="cm"># dc/da = b, dc/db = a</span>
+<span class="cm"># "Se intercambian los valores"</span>
+
+<span class="cm"># RELU: b = max(0, a)</span>
+<span class="cm"># db/da = 1 si a>0, 0 si a<=0</span>
+<span class="cm"># "Pasa o bloquea el gradiente"</span></div>
+        </div>
+        <div class="example-box">
+            <h3>Se encadenan solas</h3>
+            <div class="code" style="font-size:0.88em;">
+<span class="cm"># Solo escribimos el forward:</span>
+x = Value(<span class="num">3.0</span>)
+y = Value(<span class="num">4.0</span>)
+z = x * y + x   <span class="cm"># z = 3*4 + 3 = 15</span>
+
+<span class="cm"># El backward se calcula SOLO:</span>
+z.backward()
+<span class="cm"># x.grad = 5.0  (y + 1 = 4 + 1)</span>
+<span class="cm"># y.grad = 3.0  (x = 3)</span>
+
+<span class="cm"># No tuvimos que derivar a mano!</span></div>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== SLIDE 8: EJEMPLO CONCRETO ==================== -->
+<div class="slide bg-yellow" id="slide8">
+    <h2 class="title-yellow">Ejemplo Concreto: Paso a Paso con Numeros</h2>
+    <p style="color:#ccc; margin-bottom:15px; font-size:1.05em;">Neurona simple: <span class="mono highlight-y">o = tanh(w&times;x + b)</span> con <span class="mono">w=<span class="highlight-p">-3</span>, x=<span class="highlight-b">2</span>, b=<span class="highlight">6.88</span></span></p>
+    <div class="two-col">
+        <div class="example-box" style="background:rgba(241,250,140,0.05); border-color:rgba(241,250,140,0.25);">
+            <h3 style="color:#f1fa8c;">FORWARD: calcular valores &rarr;</h3>
+            <div style="font-family:'JetBrains Mono',monospace; font-size:1em; color:#ccc; line-height:2.2;">
+                <div><span class="step-num" style="background:#0e4d92; color:white;">1</span> <span class="highlight-p">w &times; x</span> = -3 &times; 2 = <span class="highlight-r">-6.00</span></div>
+                <div><span class="step-num" style="background:#0e4d92; color:white;">2</span> <span class="highlight-p">wx + b</span> = -6 + 6.88 = <span class="highlight-r">0.88</span></div>
+                <div><span class="step-num" style="background:#0e4d92; color:white;">3</span> <span class="highlight-p">tanh(0.88)</span> = <span class="highlight" style="font-size:1.2em;">0.707</span></div>
             </div>
-            <p>Por eso usamos backpropagation (reverse mode autodiff).</p>
+            <p style="color:#888; margin-top:10px; font-size:0.9em;">Resultado: la neurona produce 0.707</p>
         </div>
-    </div>
-</div>
-
-<!-- SLIDE 6: GRAFO DE COMPUTACION -->
-<div class="slide slide-grafo" id="slide6">
-    <h2>Grafos de Computacion</h2>
-    <div class="diagram-box">[x1] ---(*w1)--- [x1w1] ---\
-                                (+) --- [sum] --- (+b) --- [n] --- [tanh] --- [o]
-[x2] ---(*w2)--- [x2w2] ---/                      |
-                                                  [b]
-
-    DAG: Directed Acyclic Graph (Grafo Dirigido Aciclico)</div>
-    <p class="grafo-desc">
-        Cada operacion crea un <strong>nodo</strong> en el grafo. Los nodos hoja son entradas/parametros.
-        El grafo permite: <strong>backpropagation automatica</strong>, <strong>optimizacion</strong> (fusion de kernels),
-        y <strong>ejecucion multi-backend</strong>.
-    </p>
-</div>
-
-<!-- SLIDE 7: BACKPROPAGATION -->
-<div class="slide slide-backprop" id="slide7">
-    <h2>Backpropagation: Paso a Paso</h2>
-    <div class="steps-grid">
-        <div class="step-card">
-            <div class="step-num">1</div>
-            <h4>Forward Pass</h4>
-            <p>Ejecutar la red de izquierda a derecha. Cada operacion registra sus dependencias en el grafo.</p>
-        </div>
-        <div class="step-card">
-            <div class="step-num">2</div>
-            <h4>Calcular Loss</h4>
-            <p>Evaluar la funcion de perdida (MSE, Cross-Entropy). Resultado: un escalar.</p>
-        </div>
-        <div class="step-card">
-            <div class="step-num">3</div>
-            <h4>Inicializar Gradiente</h4>
-            <p>El gradiente del loss respecto a si mismo es 1.0. Este es el punto de partida.</p>
-        </div>
-        <div class="step-card">
-            <div class="step-num">4</div>
-            <h4>Backward Pass</h4>
-            <p>Recorrer el grafo en orden topologico INVERSO. En cada nodo: aplicar regla de la cadena.</p>
-        </div>
-    </div>
-</div>
-
-<!-- SLIDE 8: GRADIENTES LOCALES -->
-<div class="slide slide-gradientes" id="slide8">
-    <h2>Gradientes Locales por Operacion</h2>
-    <table class="grad-table">
-        <tr>
-            <th>Operacion</th>
-            <th>Forward</th>
-            <th>Backward</th>
-        </tr>
-        <tr>
-            <td><code>c = a + b</code></td>
-            <td>Suma</td>
-            <td><code>da = 1*dc, db = 1*dc</code></td>
-        </tr>
-        <tr>
-            <td><code>c = a * b</code></td>
-            <td>Producto</td>
-            <td><code>da = b*dc, db = a*dc</code></td>
-        </tr>
-        <tr>
-            <td><code>b = relu(a)</code></td>
-            <td>max(0, a)</td>
-            <td><code>da = (a>0)*db</code></td>
-        </tr>
-        <tr>
-            <td><code>b = exp(a)</code></td>
-            <td>e^a</td>
-            <td><code>da = exp(a)*db</code></td>
-        </tr>
-        <tr>
-            <td><code>C = A @ B</code></td>
-            <td>MatMul</td>
-            <td><code>dA = dC@B^T, dB = A^T@dC</code></td>
-        </tr>
-    </table>
-    <p style="color:#aaa; font-size:0.95em; margin-top:15px;">
-        Cada operacion solo necesita saber su <strong style="color:#f1fa8c">gradiente local</strong>. La regla de la cadena encadena todo automaticamente.
-    </p>
-</div>
-
-<!-- SLIDE 9: ARQUITECTURA TINYGRAD -->
-<div class="slide slide-arquitectura" id="slide9">
-    <h2>Arquitectura de Tinygrad</h2>
-    <div class="arch-flow">
-        <div class="arch-box">
-            <h4>Tensor API</h4>
-            <p>Interfaz del usuario: a + b, matmul, relu</p>
-        </div>
-        <div class="arch-arrow">&#8595;</div>
-        <div class="arch-box">
-            <h4>UOp Graph</h4>
-            <p>Representacion intermedia: ~15 ops primitivas</p>
-        </div>
-        <div class="arch-arrow">&#8595;</div>
-        <div class="arch-box">
-            <h4>Scheduler</h4>
-            <p>Fusion de kernels, optimizacion de memoria</p>
-        </div>
-        <div class="arch-arrow">&#8595;</div>
-        <div class="arch-box">
-            <h4>Codegen</h4>
-            <p>CUDA | Metal | OpenCL | C | WebGPU</p>
-        </div>
-        <div class="arch-arrow">&#8595;</div>
-        <div class="arch-box" style="border-color: #50fa7b;">
-            <h4 style="color:#50fa7b;">Hardware</h4>
-            <p>NVIDIA | AMD | Apple M1/M2/M3 | CPU</p>
-        </div>
-    </div>
-</div>
-
-<!-- SLIDE 10: UOPS -->
-<div class="slide slide-uops" id="slide10">
-    <h2>UOps: Operaciones Primitivas</h2>
-    <div class="uops-grid">
-        <div class="uop-card">
-            <div class="cat">UNARIAS</div>
-            <div class="ops">neg, exp<br>log, sin<br>sqrt</div>
-        </div>
-        <div class="uop-card">
-            <div class="cat">BINARIAS</div>
-            <div class="ops">add, mul<br>max<br>cmplt</div>
-        </div>
-        <div class="uop-card">
-            <div class="cat">REDUCE</div>
-            <div class="ops">sum<br>max<br>(por eje)</div>
-        </div>
-        <div class="uop-card">
-            <div class="cat">MOVEMENT</div>
-            <div class="ops">reshape<br>permute<br>expand, pad</div>
-        </div>
-        <div class="uop-card">
-            <div class="cat">BUFFER</div>
-            <div class="ops">load<br>store<br>const</div>
-        </div>
-    </div>
-    <div class="uop-insight">
-        <strong>Innovacion clave:</strong> TODA operacion de deep learning (softmax, attention, batch norm)
-        se descompone en estas ~15 primitivas. El compilador solo optimiza un conjunto reducido,
-        pero puede ejecutar CUALQUIER modelo.
-    </div>
-</div>
-
-<!-- SLIDE 11: LAZY VS EAGER -->
-<div class="slide slide-lazy" id="slide11">
-    <h2>Eager vs Lazy Evaluation</h2>
-    <div class="comparison-grid">
-        <div class="comp-card eager">
-            <h3>Eager (PyTorch)</h3>
-            <pre>c = a + b    # Ejecuta AHORA
-d = c * 2    # Ejecuta AHORA
-e = d.relu() # Ejecuta AHORA</pre>
-            <p class="result">3 kernels separados<br>3 buffers en memoria GPU<br>6 accesos a memoria global</p>
-        </div>
-        <div class="comp-card lazy">
-            <h3>Lazy (Tinygrad)</h3>
-            <pre>c = a + b    # Solo registra
-d = c * 2    # Solo registra
-e = d.relu() # Solo registra
-e.realize()  # Ejecuta TODO junto</pre>
-            <p class="result">1 kernel fusionado<br>1 buffer en memoria GPU<br>2 accesos a memoria global</p>
-        </div>
-    </div>
-</div>
-
-<!-- SLIDE 12: FUSION DE KERNELS -->
-<div class="slide slide-fusion" id="slide12">
-    <h2>Fusion de Kernels</h2>
-    <div class="fusion-compare">
-        <div class="fusion-card bad">
-            <h3>Sin Fusion (3 kernels)</h3>
-            <div class="fusion-step mem">Memoria: lee a, b</div>
-            <div class="fusion-step kern">Kernel 1: c = a + b</div>
-            <div class="fusion-step mem">Memoria: escribe c, lee c</div>
-            <div class="fusion-step kern">Kernel 2: d = c * 2</div>
-            <div class="fusion-step mem">Memoria: escribe d, lee d</div>
-            <div class="fusion-step kern">Kernel 3: e = relu(d)</div>
-            <div class="fusion-step mem">Memoria: escribe e</div>
-            <p style="color:#e63946; margin-top:15px; font-weight:700;">6 accesos a memoria</p>
-        </div>
-        <div class="fusion-card good">
-            <h3>Con Fusion (1 kernel)</h3>
-            <div class="fusion-step mem">Memoria: lee a, b</div>
-            <div class="fusion-step fused" style="padding:30px;">
-                Kernel Fusionado:<br>
-                e = relu((a + b) * 2)<br><br>
-                <span style="font-size:0.85em; color:#aaa;">3 operaciones en registros GPU<br>Sin escrituras intermedias</span>
+        <div class="example-box" style="background:rgba(255,107,107,0.05); border-color:rgba(255,107,107,0.25);">
+            <h3 style="color:#ff6b6b;">BACKWARD: calcular gradientes &larr;</h3>
+            <div style="font-family:'JetBrains Mono',monospace; font-size:1em; color:#ccc; line-height:2.2;">
+                <div><span class="step-num" style="background:#e63946; color:white;">3</span> do/dn = 1 - tanh&sup2; = 1 - 0.5 = <span class="highlight-r">0.50</span></div>
+                <div><span class="step-num" style="background:#e63946; color:white;">2</span> do/db = 0.50 &times; 1 = <span class="highlight-r">0.50</span></div>
+                <div><span class="step-num" style="background:#e63946; color:white;">1</span> do/dw = 0.50 &times; x = 0.50 &times; 2 = <span class="highlight" style="font-size:1.2em;">1.00</span></div>
             </div>
-            <div class="fusion-step mem">Memoria: escribe e</div>
-            <p style="color:#50fa7b; margin-top:15px; font-weight:700;">2 accesos a memoria (3x menos)</p>
+            <p style="color:#888; margin-top:10px; font-size:0.9em;">Gradiente de w = 1.00: "sube w para subir o"</p>
+        </div>
+    </div>
+    <div class="formula" style="margin-top:15px; font-size:1em;">
+        Si el loss dice "o deberia ser mas grande" &rarr; el gradiente dice "sube w en 1.00 unidades por cada paso"
+    </div>
+</div>
+
+<!-- ==================== SLIDE 9: GRAFO DE COMPUTACION ==================== -->
+<div class="slide bg-green" id="slide9">
+    <h2 class="title-green">Grafo de Computacion: El Mapa de Operaciones</h2>
+    <p style="color:#ccc; margin-bottom:15px;">Cada operacion crea un <strong style="color:#50fa7b">nodo</strong>. Los nodos se conectan formando un <strong style="color:#50fa7b">grafo dirigido</strong> (DAG).</p>
+    <div class="two-col">
+        <div style="text-align:center;">
+            <div style="background:rgba(0,0,0,0.4); border:1px solid rgba(80,250,123,0.3); border-radius:14px; padding:25px;">
+                <p style="color:#50fa7b; font-weight:700; margin-bottom:15px; font-size:1.1em;">Neurona: o = tanh(w*x + b)</p>
+                <!-- Row 1: inputs -->
+                <div class="flow-row">
+                    <div class="node node-md val-node">w</div>
+                    <div class="arrow">&nbsp;</div>
+                    <div class="node node-md val-node">x</div>
+                    <div style="width:40px;"></div>
+                    <div class="node node-md val-node">b</div>
+                </div>
+                <div class="flow-row"><span style="color:#666;">&#8595; &nbsp;&nbsp;&nbsp; &#8595;</span></div>
+                <!-- Row 2: multiply -->
+                <div class="flow-row">
+                    <div class="node node-md op-node">&times;</div>
+                    <div class="arrow">&rarr;</div>
+                    <div style="background:rgba(80,250,123,0.15); border:1px solid rgba(80,250,123,0.4); border-radius:10px; padding:8px 14px;">
+                        <span class="mono" style="color:#50fa7b;">w*x = -6</span>
+                    </div>
+                </div>
+                <div class="flow-row"><span style="color:#666;">&#8595;</span></div>
+                <!-- Row 3: add -->
+                <div class="flow-row">
+                    <div class="node node-md op-node">+</div>
+                    <div class="arrow">&rarr;</div>
+                    <div style="background:rgba(80,250,123,0.15); border:1px solid rgba(80,250,123,0.4); border-radius:10px; padding:8px 14px;">
+                        <span class="mono" style="color:#50fa7b;">wx+b = 0.88</span>
+                    </div>
+                </div>
+                <div class="flow-row"><span style="color:#666;">&#8595;</span></div>
+                <!-- Row 4: tanh -->
+                <div class="flow-row">
+                    <div class="node node-md op-node" style="width:70px; border-radius:10px;">tanh</div>
+                    <div class="arrow">&rarr;</div>
+                    <div style="background:rgba(241,250,140,0.15); border:1px solid rgba(241,250,140,0.4); border-radius:10px; padding:8px 14px;">
+                        <span class="mono" style="color:#f1fa8c; font-weight:700;">o = 0.707</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div>
+            <div class="example-box" style="margin-bottom:15px;">
+                <h3>Para que sirve el grafo?</h3>
+                <p style="color:#ccc; line-height:1.7;">
+                    <strong style="color:#50fa7b">1. Forward</strong>: seguimos las flechas <strong>hacia abajo</strong> para calcular el resultado.<br><br>
+                    <strong style="color:#ff6b6b">2. Backward</strong>: seguimos las flechas <strong>hacia arriba</strong> para calcular gradientes.<br><br>
+                    <strong style="color:#48cae4">3. Optimizacion</strong>: el grafo completo permite <strong>fusionar</strong> operaciones antes de ejecutar.
+                </p>
+            </div>
+            <div class="example-box">
+                <h3>Analogia: GPS</h3>
+                <p style="color:#ccc; line-height:1.6;">
+                    El grafo es como un <strong style="color:#50fa7b">GPS</strong>: registra cada paso del camino. Cuando necesitas volver (backward), sabes exactamente por donde pasaste.
+                </p>
+            </div>
         </div>
     </div>
 </div>
 
-<!-- SLIDE 13: COMPARATIVA -->
-<div class="slide slide-comparativa" id="slide13">
-    <h2>Tinygrad vs PyTorch vs Micrograd</h2>
-    <table class="fw-table">
-        <tr>
-            <th></th>
-            <th>Micrograd</th>
-            <th>Tinygrad</th>
-            <th>PyTorch</th>
-        </tr>
-        <tr>
-            <td>Codigo</td>
-            <td>~100 lineas</td>
-            <td>~19K lineas</td>
-            <td>Millones</td>
-        </tr>
-        <tr>
-            <td>Datos</td>
-            <td>Escalares</td>
-            <td>Tensores N-D</td>
-            <td>Tensores N-D</td>
-        </tr>
-        <tr>
-            <td>Ejecucion</td>
-            <td>Eager</td>
-            <td>Lazy</td>
-            <td>Eager + JIT</td>
-        </tr>
-        <tr>
-            <td>GPU</td>
-            <td>No</td>
-            <td>CUDA, Metal, OCL</td>
-            <td>CUDA</td>
-        </tr>
-        <tr>
-            <td>Fusion</td>
-            <td>No</td>
-            <td>Automatica</td>
-            <td>torch.compile</td>
-        </tr>
-        <tr>
-            <td>Modelos</td>
-            <td>Toy</td>
-            <td>LLaMA, StableDiff</td>
-            <td>Todos</td>
-        </tr>
-        <tr>
-            <td>Valor</td>
-            <td>Fundamentos</td>
-            <td>Intermedio/Avanzado</td>
-            <td>Produccion</td>
-        </tr>
-    </table>
-</div>
+<!-- ==================== SLIDE 10: BACKPROP COMPLETO ==================== -->
+<div class="slide bg-red" id="slide10">
+    <h2 class="title-red">Backpropagation: El Algoritmo Completo</h2>
+    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:25px;">
+        <div>
+            <div class="example-box warn" style="margin-bottom:15px;">
+                <h3>Los 5 pasos del entrenamiento</h3>
+                <div style="color:#ccc; line-height:2; font-size:1.02em;">
+                    <div><span class="step-num" style="background:#48cae4; color:white;">1</span> <strong style="color:#48cae4">Forward</strong>: correr la red, obtener prediccion</div>
+                    <div><span class="step-num" style="background:#f1fa8c; color:#1a1a2e;">2</span> <strong style="color:#f1fa8c">Loss</strong>: medir que tan lejos esta de la respuesta correcta</div>
+                    <div><span class="step-num" style="background:#ff6b6b; color:white;">3</span> <strong style="color:#ff6b6b">Backward</strong>: calcular gradientes (regla de la cadena)</div>
+                    <div><span class="step-num" style="background:#50fa7b; color:#1a1a2e;">4</span> <strong style="color:#50fa7b">Update</strong>: ajustar pesos en direccion opuesta al gradiente</div>
+                    <div><span class="step-num" style="background:#bd93f9; color:white;">5</span> <strong style="color:#bd93f9">Repetir</strong>: iterar hasta que el loss sea bajo</div>
+                </div>
+            </div>
+        </div>
+        <div>
+            <div class="example-box warn">
+                <h3>Ejemplo numerico: 1 iteracion</h3>
+                <div class="code" style="font-size:0.82em; line-height:1.7;">
+<span class="cm"># Datos: x=2, y_real=1</span>
+<span class="cm"># Peso actual: w=0.5</span>
 
-<!-- SLIDE 14: VALOR DE NEGOCIO -->
-<div class="slide slide-negocio" id="slide14">
-    <h2>Valor de Negocio</h2>
-    <div class="biz-grid">
-        <div class="biz-card">
-            <h3>Romper el Lock-in NVIDIA</h3>
-            <p>Mismo codigo para GPUs NVIDIA, AMD, Apple e Intel. Reduce dependencia de CUDA y costos de hardware (H100: $25K-40K c/u).</p>
-        </div>
-        <div class="biz-card">
-            <h3>Edge Deployment</h3>
-            <p>Framework liviano (~19K LOC) ideal para dispositivos embebidos e IoT. Sin dependencias pesadas como LLVM o CUDA toolkit.</p>
-        </div>
-        <div class="biz-card">
-            <h3>Costos de Inference</h3>
-            <p>Fusion automatica reduce accesos a memoria 2-4x. Menos costos de compute en produccion para APIs de LLM.</p>
-        </div>
-        <div class="biz-card">
-            <h3>Auditabilidad</h3>
-            <p>Codigo legible y auditable facilita compliance en industrias reguladas: salud, finanzas, defensa.</p>
+<span class="cm"># PASO 1: Forward</span>
+pred = w * x = <span class="num">0.5</span> * <span class="num">2</span> = <span class="num">1.0</span>
+
+<span class="cm"># PASO 2: Loss (MSE)</span>
+loss = (pred - y_real)&sup2; = (<span class="num">1.0</span> - <span class="num">1.0</span>)&sup2; = <span class="num">0.0</span>
+<span class="cm"># Perfecto! Pero si w=0.8:</span>
+pred = <span class="num">0.8</span> * <span class="num">2</span> = <span class="num">1.6</span>
+loss = (<span class="num">1.6</span> - <span class="num">1.0</span>)&sup2; = <span class="num">0.36</span>
+
+<span class="cm"># PASO 3: Backward</span>
+dL/dw = <span class="num">2</span>*(pred-y)*x = <span class="num">2</span>*<span class="num">0.6</span>*<span class="num">2</span> = <span class="fn">2.4</span>
+
+<span class="cm"># PASO 4: Update (lr=0.1)</span>
+w = <span class="num">0.8</span> - <span class="num">0.1</span> * <span class="fn">2.4</span> = <span class="fn">0.56</span>
+<span class="cm"># w bajo de 0.8 a 0.56 (acercandose a 0.5)</span></div>
+            </div>
         </div>
     </div>
 </div>
 
-<!-- SLIDE 15: TINY CORP -->
-<div class="slide slide-contexto" id="slide15">
-    <h2>Tiny Corp: El Modelo de Negocio</h2>
-    <div class="stats-grid">
-        <div class="stat-card" style="border-color: rgba(80,250,123,0.4);">
-            <span class="number" style="color:#50fa7b; font-size:2em;">Hardware</span>
-            <span class="label">Chips AI propios optimizados para tinygrad</span>
+<!-- ==================== SLIDE 11: DEMO ENTRENAMIENTO ==================== -->
+<div class="slide bg-yellow" id="slide11">
+    <h2 class="title-yellow">Demo: Entrenando una Neurona (3 iteraciones)</h2>
+    <p style="color:#aaa; margin-bottom:12px;">Meta: aprender <span class="mono highlight-y">w</span> tal que <span class="mono">w &times; 2 = 4</span> (w ideal = 2.0). Empezamos con <span class="mono highlight-r">w = 0.5</span></p>
+    <div class="three-col">
+        <div class="example-box" style="background:rgba(241,250,140,0.04); border-color:rgba(241,250,140,0.2);">
+            <h3 style="color:#f1fa8c;">Iteracion 1: w = 0.5</h3>
+            <div style="color:#ccc; line-height:1.9; font-size:0.95em; font-family:'JetBrains Mono',monospace;">
+                pred = 0.5 &times; 2 = <span class="highlight-b">1.0</span><br>
+                loss = (1.0 - 4)&sup2; = <span class="highlight-r">9.0</span><br>
+                grad = 2(1-4)&times;2 = <span class="highlight-r">-12.0</span><br>
+                w = 0.5 - 0.1&times;(-12)<br>
+                <strong style="color:#50fa7b;">w = 1.7</strong>
+            </div>
+            <p class="small" style="margin-top:8px;">Loss alto, paso grande</p>
         </div>
-        <div class="stat-card" style="border-color: rgba(189,147,249,0.4);">
-            <span class="number" style="color:#bd93f9; font-size:2em;">Cloud</span>
-            <span class="label">Servicio de compute basado en tinygrad</span>
+        <div class="example-box" style="background:rgba(241,250,140,0.04); border-color:rgba(241,250,140,0.2);">
+            <h3 style="color:#f1fa8c;">Iteracion 2: w = 1.7</h3>
+            <div style="color:#ccc; line-height:1.9; font-size:0.95em; font-family:'JetBrains Mono',monospace;">
+                pred = 1.7 &times; 2 = <span class="highlight-b">3.4</span><br>
+                loss = (3.4 - 4)&sup2; = <span class="highlight-r">0.36</span><br>
+                grad = 2(3.4-4)&times;2 = <span class="highlight-r">-2.4</span><br>
+                w = 1.7 - 0.1&times;(-2.4)<br>
+                <strong style="color:#50fa7b;">w = 1.94</strong>
+            </div>
+            <p class="small" style="margin-top:8px;">Loss bajo, paso pequeno</p>
         </div>
-        <div class="stat-card" style="border-color: rgba(255,140,0,0.4);">
-            <span class="number" style="color:#ff8c00; font-size:2em;">Open Source</span>
-            <span class="label">Framework libre, negocio en HW + servicios</span>
+        <div class="example-box" style="background:rgba(241,250,140,0.04); border-color:rgba(241,250,140,0.2);">
+            <h3 style="color:#f1fa8c;">Iteracion 3: w = 1.94</h3>
+            <div style="color:#ccc; line-height:1.9; font-size:0.95em; font-family:'JetBrains Mono',monospace;">
+                pred = 1.94 &times; 2 = <span class="highlight-b">3.88</span><br>
+                loss = (3.88 - 4)&sup2; = <span class="highlight-r">0.014</span><br>
+                grad = 2(3.88-4)&times;2 = <span class="highlight-r">-0.48</span><br>
+                w = 1.94 - 0.1&times;(-0.48)<br>
+                <strong style="color:#50fa7b;">w = 1.988</strong>
+            </div>
+            <p class="small" style="margin-top:8px;">Casi perfecto! w &asymp; 2.0</p>
         </div>
     </div>
-    <p class="context-text">
-        George Hotz fundo <strong style="color:#48cae4">tiny corp</strong> para comercializar tinygrad.
-        El framework sigue siendo open source; el modelo de negocio se centra en hardware especializado
-        y servicios de cloud compute como alternativa al ecosistema NVIDIA.
-    </p>
+    <div class="formula" style="margin-top:15px; font-size:1em;">
+        w: <span class="highlight-r">0.50</span> &rarr; <span class="highlight-y">1.70</span> &rarr; <span class="highlight-b">1.94</span> &rarr; <span class="highlight">1.988</span> &rarr; ... &rarr; <span style="color:#50fa7b; font-size:1.2em;">2.000</span>
+        &nbsp;&nbsp;&nbsp; Loss: <span class="highlight-r">9.0</span> &rarr; <span class="highlight-y">0.36</span> &rarr; <span class="highlight-b">0.014</span> &rarr; <span class="highlight">~0</span>
+    </div>
 </div>
 
-<!-- SLIDE 16: DEMO -->
-<div class="slide slide-demo" id="slide16">
-    <h2>Demo: Autograd desde Cero</h2>
-    <div class="code-block"><span class="cm"># Motor autograd escalar - 100 lineas</span>
+<!-- ==================== SLIDE 12: CODIGO AUTOGRAD ==================== -->
+<div class="slide bg-dark" id="slide12">
+    <h2 class="title-green">El Codigo: Motor Autograd en 30 Lineas</h2>
+    <div class="two-col">
+        <div class="code" style="font-size:0.82em; line-height:1.6;">
 <span class="kw">class</span> <span class="fn">Value</span>:
-    <span class="kw">def</span> <span class="fn">__init__</span>(self, data, _children=(), _op=<span class="st">''</span>):
-        self.data = data
-        self.grad = <span class="num">0.0</span>
-        self._backward = <span class="kw">lambda</span>: <span class="kw">None</span>
-        self._prev = <span class="fn">set</span>(_children)
+  <span class="kw">def</span> <span class="fn">__init__</span>(self, data):
+    self.data = data
+    self.grad = <span class="num">0.0</span>        <span class="cm"># gradiente</span>
+    self._backward = <span class="kw">lambda</span>: <span class="kw">None</span>
+    self._prev = <span class="fn">set</span>()     <span class="cm"># padres</span>
 
-    <span class="kw">def</span> <span class="fn">__mul__</span>(self, other):
-        out = Value(self.data * other.data, (self, other), <span class="st">'*'</span>)
-        <span class="kw">def</span> <span class="fn">_backward</span>():
-            self.grad += other.data * out.grad  <span class="cm"># d(a*b)/da = b</span>
-            other.grad += self.data * out.grad  <span class="cm"># d(a*b)/db = a</span>
-        out._backward = _backward
-        <span class="kw">return</span> out
+  <span class="kw">def</span> <span class="fn">__mul__</span>(self, other):
+    out = Value(self.data * other.data)
+    out._prev = {self, other}
+    <span class="kw">def</span> <span class="fn">_backward</span>():
+      self.grad += other.data * out.grad
+      other.grad += self.data * out.grad
+    out._backward = _backward
+    <span class="kw">return</span> out
 
-<span class="cm"># Uso:</span>
-x = Value(<span class="num">3.0</span>); y = Value(<span class="num">4.0</span>)
-z = x * y       <span class="cm"># z = 12.0</span>
-z.backward()    <span class="cm"># x.grad = 4.0, y.grad = 3.0</span></div>
-    <p style="color:#aaa; font-size:1em; margin-top:15px;">
-        Ver notebook completo: <span style="color:#f1fa8c; font-family:'JetBrains Mono',monospace;">Tinygrad_Autograd_Grafos_Computacion.ipynb</span>
-    </p>
+  <span class="kw">def</span> <span class="fn">__add__</span>(self, other):
+    out = Value(self.data + other.data)
+    out._prev = {self, other}
+    <span class="kw">def</span> <span class="fn">_backward</span>():
+      self.grad += out.grad
+      other.grad += out.grad
+    out._backward = _backward
+    <span class="kw">return</span> out
+
+  <span class="kw">def</span> <span class="fn">backward</span>(self):
+    self.grad = <span class="num">1.0</span>
+    <span class="cm"># recorrer grafo en orden inverso</span>
+    <span class="kw">for</span> node <span class="kw">in</span> <span class="fn">reversed</span>(topo_sort(self)):
+      node._backward()</div>
+        <div>
+            <div class="example-box" style="margin-bottom:15px;">
+                <h3>Como funciona?</h3>
+                <p style="color:#ccc; line-height:1.7;">
+                    <span class="step-num" style="background:#0e4d92; color:white;">1</span> Cada <span class="mono highlight">Value</span> guarda su dato y su gradiente.<br><br>
+                    <span class="step-num" style="background:#e63946; color:white;">2</span> Cada operacion (<span class="mono">+</span>, <span class="mono">*</span>) crea un nuevo Value y guarda una funcion <span class="mono highlight-r">_backward</span> que sabe calcular el gradiente.<br><br>
+                    <span class="step-num" style="background:#2d6a4f; color:white;">3</span> Al llamar <span class="mono highlight">backward()</span>, se recorre el grafo de atras hacia adelante, llamando cada <span class="mono">_backward</span>.
+                </p>
+            </div>
+            <div class="example-box">
+                <h3>Resultado</h3>
+                <div class="code" style="font-size:0.85em;">
+a = Value(<span class="num">2.0</span>); b = Value(<span class="num">3.0</span>)
+c = a * b      <span class="cm"># c = 6.0</span>
+d = c + a      <span class="cm"># d = 8.0</span>
+d.backward()
+<span class="cm"># a.grad = 4.0 (b + 1 = 3 + 1)</span>
+<span class="cm"># b.grad = 2.0 (a = 2)</span></div>
+            </div>
+        </div>
+    </div>
 </div>
 
-<!-- SLIDE 17: CONCLUSIONES -->
-<div class="slide slide-conclusiones" id="slide17">
-    <h2>Conclusiones</h2>
-    <ul class="conclusion-list">
-        <li><strong>1. Autograd = Regla de la cadena sistematica.</strong> No hay magia: cada operacion define su gradiente local y la cadena los conecta.</li>
-        <li><strong>2. Grafos de computacion son la base de todo.</strong> Permiten backprop automatico, fusion de kernels, y ejecucion multi-backend.</li>
-        <li><strong>3. Lazy evaluation habilita optimizaciones superiores.</strong> Conocer el grafo completo antes de ejecutar permite fusionar operaciones.</li>
-        <li><strong>4. Tinygrad prueba que menos es mas.</strong> ~19K lineas ejecutan LLaMA-65B. La complejidad de PyTorch no es inherente al problema.</li>
-        <li><strong>5. Valor de negocio claro.</strong> Multi-backend rompe el lock-in de NVIDIA; fusion reduce costos de inference.</li>
-    </ul>
+<!-- ==================== SLIDE 13: ARQUITECTURA TINYGRAD ==================== -->
+<div class="slide bg-blue" id="slide13">
+    <h2 class="title-blue">Arquitectura de Tinygrad</h2>
+    <p style="color:#ccc; margin-bottom:15px;">Nuestro autograd opera con escalares. Tinygrad hace lo mismo pero con <strong style="color:#48cae4">tensores</strong>, <strong style="color:#48cae4">GPU</strong> y <strong style="color:#48cae4">fusion de kernels</strong>.</p>
+    <div class="two-col">
+        <div style="display:flex; flex-direction:column; gap:10px;">
+            <div class="flow-box"><h4>Tensor API (lo que escribe el usuario)</h4><p>a = Tensor([1,2,3]); c = a + b</p></div>
+            <div style="text-align:center;"><span class="flow-arrow">&#8595;</span></div>
+            <div class="flow-box"><h4>UOp Graph (~15 operaciones primitivas)</h4><p>add, mul, relu, sum, reshape...</p></div>
+            <div style="text-align:center;"><span class="flow-arrow">&#8595;</span></div>
+            <div class="flow-box"><h4>Scheduler (fusion de operaciones)</h4><p>3 ops separadas &rarr; 1 kernel fusionado</p></div>
+            <div style="text-align:center;"><span class="flow-arrow">&#8595;</span></div>
+            <div class="flow-box"><h4>Codegen (genera codigo para cada GPU)</h4><p>CUDA | Metal | OpenCL | C | WebGPU</p></div>
+            <div style="text-align:center;"><span class="flow-arrow">&#8595;</span></div>
+            <div class="flow-box" style="border-color:rgba(80,250,123,0.5);"><h4 style="color:#50fa7b;">Hardware</h4><p>NVIDIA | AMD | Apple M1/M2/M3 | CPU</p></div>
+        </div>
+        <div>
+            <div class="example-box blue" style="margin-bottom:15px;">
+                <h3>Analogia: Compilador de idiomas</h3>
+                <p style="color:#ccc; line-height:1.7;">
+                    Tu escribes en <strong style="color:#48cae4">"Python"</strong> (Tensor API).<br><br>
+                    Tinygrad lo traduce a un <strong style="color:#f1fa8c">"idioma intermedio"</strong> (UOps) que entiende de operaciones basicas.<br><br>
+                    El Scheduler <strong style="color:#50fa7b">optimiza</strong> la traduccion (fusiona frases).<br><br>
+                    El Codegen lo traduce al <strong style="color:#ff6b6b">"idioma nativo"</strong> de tu GPU (CUDA, Metal, etc.).
+                </p>
+            </div>
+            <div class="example-box blue">
+                <h3>Dato clave: solo ~15 operaciones</h3>
+                <p style="color:#ccc; line-height:1.6;">
+                    TODA operacion de deep learning (softmax, attention, batch norm) se descompone en <strong style="color:#48cae4">~15 primitivas</strong>: add, mul, exp, log, sum, max, reshape, etc.
+                </p>
+            </div>
+        </div>
+    </div>
 </div>
 
-<!-- SLIDE 18: CIERRE -->
-<div class="slide slide-cierre" id="slide18">
-    <div class="icon" style="font-size:80px;">&#9881;</div>
+<!-- ==================== SLIDE 14: LAZY VS EAGER ==================== -->
+<div class="slide bg-orange" id="slide14">
+    <h2 class="title-orange">Eager vs Lazy: Como se ejecutan las operaciones?</h2>
+    <div class="two-col">
+        <div class="example-box warn" style="border-color:rgba(230,57,70,0.3);">
+            <h3 style="color:#e63946;">Eager (PyTorch): ejecuta al instante</h3>
+            <div class="code" style="font-size:0.88em; margin-bottom:12px;">
+c = a + b    <span class="cm"># Ejecuta AHORA en GPU</span>
+             <span class="cm"># Resultado c va a memoria</span>
+d = c * <span class="num">2</span>    <span class="cm"># Lee c de memoria, ejecuta</span>
+             <span class="cm"># Resultado d va a memoria</span>
+e = d.relu() <span class="cm"># Lee d de memoria, ejecuta</span>
+             <span class="cm"># Resultado e va a memoria</span></div>
+            <p style="color:#ccc; line-height:1.7;">
+                <strong style="color:#e63946">3 viajes</strong> a memoria GPU:<br>
+                Escribir c &rarr; Leer c &rarr; Escribir d &rarr; Leer d &rarr; Escribir e<br><br>
+                <span class="small">Analogia: ir al super 3 veces, una por cada ingrediente</span>
+            </p>
+        </div>
+        <div class="example-box" style="border-color:rgba(80,250,123,0.3);">
+            <h3>Lazy (Tinygrad): registra y ejecuta todo junto</h3>
+            <div class="code" style="font-size:0.88em; margin-bottom:12px;">
+c = a + b    <span class="cm"># Solo ANOTA: "sumar a+b"</span>
+d = c * <span class="num">2</span>    <span class="cm"># Solo ANOTA: "multiplicar por 2"</span>
+e = d.relu() <span class="cm"># Solo ANOTA: "aplicar relu"</span>
+
+e.realize()  <span class="cm"># AHORA ejecuta TODO junto</span>
+             <span class="cm"># e = relu((a+b)*2)</span>
+             <span class="cm"># UN solo viaje a memoria</span></div>
+            <p style="color:#ccc; line-height:1.7;">
+                <strong style="color:#50fa7b">1 viaje</strong> a memoria GPU:<br>
+                Lee a,b &rarr; calcula todo en registros &rarr; Escribe e<br><br>
+                <span class="small">Analogia: hacer TODA la lista del super en un solo viaje</span>
+            </p>
+        </div>
+    </div>
+    <div class="formula" style="margin-top:15px; font-size:1em;">
+        Resultado: Lazy puede ser <strong style="color:#50fa7b;">2-4x mas rapido</strong> porque el cuello de botella en GPUs es la MEMORIA, no el computo
+    </div>
+</div>
+
+<!-- ==================== SLIDE 15: FUSION DE KERNELS ==================== -->
+<div class="slide bg-green" id="slide15">
+    <h2 class="title-green">Fusion de Kernels: La Magia de Tinygrad</h2>
+    <div class="two-col">
+        <div>
+            <div class="example-box warn" style="margin-bottom:15px;">
+                <h3>Sin fusion: 3 kernels, 6 accesos a memoria</h3>
+                <div style="font-family:'JetBrains Mono',monospace; color:#ccc; line-height:2; font-size:0.92em;">
+                    <div style="background:rgba(74,78,105,0.4); padding:6px 12px; border-radius:6px; margin:4px 0;">
+                        <span style="color:#888;">RAM GPU</span> &rarr; Lee a, b
+                    </div>
+                    <div style="background:rgba(230,57,70,0.15); padding:6px 12px; border-radius:6px; margin:4px 0;">
+                        <span style="color:#ff6b6b;">Kernel 1:</span> c = a + b
+                    </div>
+                    <div style="background:rgba(74,78,105,0.4); padding:6px 12px; border-radius:6px; margin:4px 0;">
+                        <span style="color:#888;">RAM GPU</span> &rarr; Escribe c, Lee c
+                    </div>
+                    <div style="background:rgba(230,57,70,0.15); padding:6px 12px; border-radius:6px; margin:4px 0;">
+                        <span style="color:#ff6b6b;">Kernel 2:</span> d = c * 2
+                    </div>
+                    <div style="background:rgba(74,78,105,0.4); padding:6px 12px; border-radius:6px; margin:4px 0;">
+                        <span style="color:#888;">RAM GPU</span> &rarr; Escribe d, Lee d
+                    </div>
+                    <div style="background:rgba(230,57,70,0.15); padding:6px 12px; border-radius:6px; margin:4px 0;">
+                        <span style="color:#ff6b6b;">Kernel 3:</span> e = relu(d)
+                    </div>
+                    <div style="background:rgba(74,78,105,0.4); padding:6px 12px; border-radius:6px; margin:4px 0;">
+                        <span style="color:#888;">RAM GPU</span> &rarr; Escribe e
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div>
+            <div class="example-box" style="margin-bottom:15px;">
+                <h3>Con fusion: 1 kernel, 2 accesos a memoria</h3>
+                <div style="font-family:'JetBrains Mono',monospace; color:#ccc; line-height:2; font-size:0.92em;">
+                    <div style="background:rgba(74,78,105,0.4); padding:6px 12px; border-radius:6px; margin:4px 0;">
+                        <span style="color:#888;">RAM GPU</span> &rarr; Lee a, b
+                    </div>
+                    <div style="background:rgba(80,250,123,0.12); padding:20px 12px; border-radius:6px; margin:4px 0; border:1px solid rgba(80,250,123,0.3);">
+                        <span style="color:#50fa7b; font-weight:700;">Kernel Fusionado:</span><br>
+                        <span style="color:#f1fa8c;">e = relu((a + b) * 2)</span><br>
+                        <span style="color:#888; font-size:0.85em;">Todo en registros GPU (ultra rapido)</span>
+                    </div>
+                    <div style="background:rgba(74,78,105,0.4); padding:6px 12px; border-radius:6px; margin:4px 0;">
+                        <span style="color:#888;">RAM GPU</span> &rarr; Escribe e
+                    </div>
+                </div>
+            </div>
+            <div class="example-box">
+                <h3>Por que importa?</h3>
+                <p style="color:#ccc; line-height:1.6;">
+                    En una GPU, leer/escribir memoria toma <strong style="color:#50fa7b">~100x mas tiempo</strong> que una operacion matematica. Fusionar = menos viajes = mas velocidad.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== SLIDE 16: COMPARATIVA ==================== -->
+<div class="slide bg-dark" id="slide16">
+    <h2 class="title-blue">Comparativa: Micrograd vs Tinygrad vs PyTorch</h2>
+    <table class="comp-table">
+        <tr>
+            <th style="background:rgba(255,255,255,0.05); color:#888; text-align:left;"></th>
+            <th style="background:rgba(230,57,70,0.15); color:#ff6b6b;">Micrograd</th>
+            <th style="background:rgba(80,250,123,0.1); color:#50fa7b;">Tinygrad</th>
+            <th style="background:rgba(255,140,0,0.12); color:#ff8c00;">PyTorch</th>
+        </tr>
+        <tr><td>Codigo</td><td>~100 lineas</td><td>~19,000 lineas</td><td>Millones</td></tr>
+        <tr><td>Tipo de datos</td><td>Escalares (un numero)</td><td>Tensores N-D (matrices)</td><td>Tensores N-D</td></tr>
+        <tr><td>Ejecucion</td><td>Eager</td><td><strong style="color:#50fa7b">Lazy</strong></td><td>Eager + torch.compile</td></tr>
+        <tr><td>GPU</td><td>No</td><td><strong style="color:#50fa7b">CUDA, Metal, OpenCL, 6+</strong></td><td>CUDA (NVIDIA only)</td></tr>
+        <tr><td>Fusion de kernels</td><td>No</td><td><strong style="color:#50fa7b">Automatica</strong></td><td>Solo con torch.compile</td></tr>
+        <tr><td>Modelos reales</td><td>No (juguete)</td><td><strong style="color:#50fa7b">LLaMA-65B, Stable Diffusion</strong></td><td>Todos</td></tr>
+        <tr><td>Valor educativo</td><td>Fundamentos basicos</td><td>Intermedio/Avanzado</td><td>Produccion</td></tr>
+    </table>
+    <div class="formula" style="margin-top:20px; font-size:0.95em;">
+        Ruta de aprendizaje: <span class="highlight-r">Micrograd</span> (entender backprop) &rarr; <span class="highlight">Tinygrad</span> (entender compiladores + GPU) &rarr; <span class="highlight-y">PyTorch</span> (produccion)
+    </div>
+</div>
+
+<!-- ==================== SLIDE 17: VALOR DE NEGOCIO ==================== -->
+<div class="slide bg-green" id="slide17">
+    <h2 class="title-green">Valor de Negocio</h2>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
+        <div class="example-box">
+            <h3>1. Romper el monopolio de NVIDIA</h3>
+            <p style="color:#ccc; line-height:1.6;">
+                PyTorch solo funciona bien con GPUs NVIDIA (CUDA).<br>
+                Una GPU H100 cuesta <strong style="color:#ff6b6b">$25,000-40,000</strong>.<br><br>
+                Tinygrad corre el <strong style="color:#50fa7b">MISMO codigo</strong> en NVIDIA, AMD, Apple e Intel. Mas opciones = menores costos.
+            </p>
+        </div>
+        <div class="example-box">
+            <h3>2. Reducir costos de inference</h3>
+            <p style="color:#ccc; line-height:1.6;">
+                La fusion automatica de kernels reduce accesos a memoria <strong style="color:#50fa7b">2-4x</strong>.<br><br>
+                Para una empresa que sirve un LLM a millones de usuarios, esto significa <strong style="color:#50fa7b">miles de dolares ahorrados</strong> en compute mensual.
+            </p>
+        </div>
+        <div class="example-box">
+            <h3>3. Edge Deployment (dispositivos)</h3>
+            <p style="color:#ccc; line-height:1.6;">
+                Framework de solo ~19K lineas, sin dependencias pesadas.<br><br>
+                Ideal para correr modelos en <strong style="color:#50fa7b">celulares, IoT, robots</strong> donde PyTorch es demasiado grande.
+            </p>
+        </div>
+        <div class="example-box">
+            <h3>4. Auditabilidad y Compliance</h3>
+            <p style="color:#ccc; line-height:1.6;">
+                En industrias reguladas (salud, finanzas), necesitas <strong style="color:#50fa7b">explicar tu modelo</strong>.<br><br>
+                19K lineas legibles vs millones opacas: cual auditas mas facil?
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== SLIDE 18: TINY CORP ==================== -->
+<div class="slide bg-blue" id="slide18">
+    <h2 class="title-blue">Tiny Corp: El Modelo de Negocio</h2>
+    <div class="stat-row">
+        <div class="stat-box" style="border-color:rgba(80,250,123,0.4);">
+            <span class="val" style="color:#50fa7b; font-size:1.8em;">Hardware</span>
+            <span class="lbl">Chips AI propios optimizados para tinygrad</span>
+        </div>
+        <div class="stat-box" style="border-color:rgba(189,147,249,0.4);">
+            <span class="val" style="color:#bd93f9; font-size:1.8em;">Cloud</span>
+            <span class="lbl">Servicio de compute basado en tinygrad</span>
+        </div>
+        <div class="stat-box" style="border-color:rgba(255,140,0,0.4);">
+            <span class="val" style="color:#ff8c00; font-size:1.8em;">Open Source</span>
+            <span class="lbl">Framework libre, negocio en HW + servicios</span>
+        </div>
+    </div>
+    <div class="two-col" style="margin-top:20px;">
+        <div class="example-box blue">
+            <h3>Estrategia</h3>
+            <p style="color:#ccc; line-height:1.7;">
+                George Hotz fundo <strong style="color:#48cae4">tiny corp</strong> para comercializar tinygrad.<br><br>
+                El framework sigue siendo <strong style="color:#50fa7b">open source</strong>.<br>
+                El negocio es <strong style="color:#48cae4">hardware + cloud</strong>: ser la alternativa a NVIDIA.
+            </p>
+        </div>
+        <div class="example-box blue">
+            <h3>Vision a futuro</h3>
+            <p style="color:#ccc; line-height:1.7;">
+                Hoy las empresas dependen de NVIDIA para AI.<br><br>
+                Tiny corp busca crear un <strong style="color:#48cae4">ecosistema completo</strong>: chip + framework + cloud, donde el mismo codigo corre en cualquier hardware.
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== SLIDE 19: CONCLUSIONES ==================== -->
+<div class="slide" style="background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);" id="slide19">
+    <h2 class="title-green">Conclusiones</h2>
+    <div style="max-width:850px;">
+        <div style="background:rgba(80,250,123,0.06); border-left:4px solid #50fa7b; border-radius:0 10px 10px 0; padding:16px 22px; margin-bottom:12px;">
+            <p style="color:#ddd; font-size:1.1em; line-height:1.5;">
+                <strong style="color:#50fa7b">1. Autograd NO es magia</strong> &mdash; es la regla de la cadena aplicada automaticamente. Cada operacion guarda como calcular su derivada, y el sistema las encadena.
+            </p>
+        </div>
+        <div style="background:rgba(80,250,123,0.06); border-left:4px solid #50fa7b; border-radius:0 10px 10px 0; padding:16px 22px; margin-bottom:12px;">
+            <p style="color:#ddd; font-size:1.1em; line-height:1.5;">
+                <strong style="color:#50fa7b">2. El grafo de computacion es el mapa</strong> &mdash; registra cada operacion (forward) y permite recorrerlo al reves (backward) para calcular todos los gradientes.
+            </p>
+        </div>
+        <div style="background:rgba(80,250,123,0.06); border-left:4px solid #50fa7b; border-radius:0 10px 10px 0; padding:16px 22px; margin-bottom:12px;">
+            <p style="color:#ddd; font-size:1.1em; line-height:1.5;">
+                <strong style="color:#50fa7b">3. Lazy evaluation es clave</strong> &mdash; al conocer el grafo COMPLETO antes de ejecutar, tinygrad puede fusionar operaciones y reducir accesos a memoria 2-4x.
+            </p>
+        </div>
+        <div style="background:rgba(80,250,123,0.06); border-left:4px solid #50fa7b; border-radius:0 10px 10px 0; padding:16px 22px; margin-bottom:12px;">
+            <p style="color:#ddd; font-size:1.1em; line-height:1.5;">
+                <strong style="color:#50fa7b">4. Menos codigo, misma potencia</strong> &mdash; ~19K lineas ejecutan LLaMA-65B. La complejidad de PyTorch no es inherente al problema.
+            </p>
+        </div>
+        <div style="background:rgba(80,250,123,0.06); border-left:4px solid #50fa7b; border-radius:0 10px 10px 0; padding:16px 22px;">
+            <p style="color:#ddd; font-size:1.1em; line-height:1.5;">
+                <strong style="color:#50fa7b">5. Valor de negocio real</strong> &mdash; multi-backend rompe el lock-in NVIDIA; fusion reduce costos; auditabilidad facilita compliance.
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== SLIDE 20: CIERRE ==================== -->
+<div class="slide slide-portada" id="slide20">
+    <div style="font-size:80px; margin-bottom:15px;">&#9881;</div>
     <h1>Gracias</h1>
-    <h2>Tinygrad: Autograd y Grafos de Computacion</h2>
-    <div class="link">github.com/tinygrad/tinygrad</div>
-    <p style="color:#666; margin-top:20px;">
-        Bloque B: Ingenieria y Frameworks | Universidad Privada del Norte<br>
-        Marzo 2026
+    <h2>Tinygrad: Autograd y Grafos de Computacion desde Cero</h2>
+    <div style="font-family:'JetBrains Mono',monospace; font-size:1.2em; color:#50fa7b; margin:15px 0;">
+        github.com/tinygrad/tinygrad
+    </div>
+    <p style="color:#666; margin-top:15px;">
+        Bloque B: Ingenieria y Frameworks | Universidad Privada del Norte | Marzo 2026
     </p>
-    <div class="thanks">Preguntas?</div>
+    <p style="color:#888; font-size:1.3em; margin-top:25px;">Preguntas?</p>
 </div>
 
-<!-- NAVIGATION -->
+<!-- ==================== NAVIGATION ==================== -->
 <div class="nav">
     <button onclick="prevSlide()">&#8592; Anterior</button>
     <button onclick="nextSlide()">Siguiente &#8594;</button>
 </div>
-<div class="slide-counter" id="slideCounter">1 / 18</div>
+<div class="slide-counter" id="slideCounter">1 / 20</div>
 
 <script>
     let currentSlide = 1;
-    const totalSlides = 18;
+    const totalSlides = 20;
 
     function showSlide(n) {
         if (n < 1 || n > totalSlides) return;
@@ -837,7 +870,6 @@ z.backward()    <span class="cm"># x.grad = 4.0, y.grad = 3.0</span></div>
         if (e.key === 'End') { e.preventDefault(); showSlide(totalSlides); }
     });
 
-    // Touch support
     let touchStartX = 0;
     document.addEventListener('touchstart', e => touchStartX = e.touches[0].clientX);
     document.addEventListener('touchend', e => {
@@ -847,6 +879,5 @@ z.backward()    <span class="cm"># x.grad = 4.0, y.grad = 3.0</span></div>
 
     showSlide(1);
 </script>
-
 </body>
 </html>
