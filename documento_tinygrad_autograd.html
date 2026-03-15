@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tinygrad: Autograd y Grafos de Computacion - Analisis Detallado</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&family=JetBrains+Mono:wght@400;500&display=swap');
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #fafafa;
+            color: #1a1a2e;
+            line-height: 1.7;
+            font-size: 15px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 60px;
+            background: white;
+            min-height: 100vh;
+        }
+
+        /* Portada */
+        .cover {
+            text-align: center;
+            padding: 80px 0;
+            border-bottom: 4px solid #2d6a4f;
+            margin-bottom: 50px;
+            page-break-after: always;
+        }
+        .cover .logo { font-size: 80px; margin-bottom: 20px; }
+        .cover h1 {
+            font-size: 2.8em;
+            font-weight: 900;
+            color: #1a1a2e;
+            margin-bottom: 10px;
+            line-height: 1.2;
+        }
+        .cover h2 {
+            font-size: 1.4em;
+            font-weight: 300;
+            color: #666;
+            margin-bottom: 30px;
+        }
+        .cover .meta {
+            font-size: 0.95em;
+            color: #888;
+            border-top: 2px solid #eee;
+            padding-top: 20px;
+            margin-top: 20px;
+        }
+        .cover .meta strong { color: #2d6a4f; }
+
+        /* Secciones */
+        h2 {
+            font-size: 1.8em;
+            color: #1a1a2e;
+            margin: 50px 0 20px 0;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #2d6a4f;
+            page-break-before: auto;
+        }
+        h3 {
+            font-size: 1.3em;
+            color: #2d6a4f;
+            margin: 30px 0 12px 0;
+        }
+        h4 {
+            font-size: 1.1em;
+            color: #4a4e69;
+            margin: 20px 0 8px 0;
+        }
+        p {
+            margin-bottom: 14px;
+            text-align: justify;
+        }
+
+        /* Listas */
+        ul, ol {
+            margin: 10px 0 18px 25px;
+        }
+        li {
+            margin-bottom: 6px;
+        }
+
+        /* Codigo */
+        code {
+            font-family: 'JetBrains Mono', monospace;
+            background: #f0f0f5;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.88em;
+            color: #e63946;
+        }
+        pre {
+            background: #1a1a2e;
+            color: #e0e0e0;
+            padding: 20px 25px;
+            border-radius: 10px;
+            overflow-x: auto;
+            margin: 15px 0 20px 0;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85em;
+            line-height: 1.6;
+        }
+        pre code {
+            background: none;
+            color: inherit;
+            padding: 0;
+        }
+        .keyword { color: #ff79c6; }
+        .string { color: #f1fa8c; }
+        .comment { color: #6272a4; font-style: italic; }
+        .function { color: #50fa7b; }
+        .number { color: #bd93f9; }
+
+        /* Tablas */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 0.92em;
+        }
+        th {
+            background: #2d6a4f;
+            color: white;
+            padding: 12px 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+        td {
+            padding: 10px 15px;
+            border-bottom: 1px solid #eee;
+        }
+        tr:nth-child(even) { background: #f8f9fa; }
+        tr:hover { background: #e8f5e9; }
+
+        /* Cajas informativas */
+        .info-box {
+            background: #e8f5e9;
+            border-left: 4px solid #2d6a4f;
+            padding: 18px 22px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .info-box.warning {
+            background: #fff3e0;
+            border-left-color: #ff8c00;
+        }
+        .info-box.danger {
+            background: #fce4ec;
+            border-left-color: #e63946;
+        }
+        .info-box strong {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 1.05em;
+        }
+
+        /* Diagramas ASCII */
+        .diagram {
+            background: #1a1a2e;
+            color: #50fa7b;
+            padding: 25px;
+            border-radius: 10px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.82em;
+            line-height: 1.5;
+            margin: 20px 0;
+            text-align: center;
+            white-space: pre;
+        }
+
+        /* Formula */
+        .formula {
+            background: #f0f0f5;
+            padding: 15px 20px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 1.1em;
+            margin: 15px 0;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Metricas */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .metric-card {
+            background: linear-gradient(135deg, #2d6a4f, #1a4731);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+        }
+        .metric-card .value {
+            font-size: 2em;
+            font-weight: 900;
+            display: block;
+        }
+        .metric-card .label {
+            font-size: 0.85em;
+            opacity: 0.8;
+            margin-top: 5px;
+        }
+
+        /* TOC */
+        .toc {
+            background: #f8f9fa;
+            padding: 25px 30px;
+            border-radius: 12px;
+            margin: 30px 0;
+            page-break-after: always;
+        }
+        .toc h3 {
+            color: #1a1a2e;
+            margin-bottom: 15px;
+        }
+        .toc ol {
+            margin-left: 20px;
+        }
+        .toc li {
+            margin-bottom: 8px;
+        }
+        .toc a {
+            color: #2d6a4f;
+            text-decoration: none;
+        }
+        .toc a:hover { text-decoration: underline; }
+
+        /* Print */
+        @media print {
+            body { font-size: 12pt; }
+            .container { padding: 20px 40px; }
+            .cover { padding: 60px 0; }
+            h2 { page-break-before: always; }
+            pre, .diagram { page-break-inside: avoid; }
+            .info-box { page-break-inside: avoid; }
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 40px 0 20px;
+            border-top: 2px solid #eee;
+            margin-top: 60px;
+            color: #888;
+            font-size: 0.85em;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- PORTADA -->
+    <div class="cover">
+        <div class="logo">&#9881;</div>
+        <h1>Tinygrad: Entendiendo el Autograd y Grafos de Computacion desde Cero</h1>
+        <h2>Bloque B: Ingenieria y Frameworks (Nivel Tecnico/Codigo)</h2>
+        <div class="meta">
+            <strong>Universidad Privada del Norte - Escuela de Posgrado</strong><br>
+            Deep Learning - Analisis Detallado de Framework<br><br>
+            Repositorio analizado: <a href="https://github.com/tinygrad/tinygrad">github.com/tinygrad/tinygrad</a><br>
+            Fecha: Marzo 2026
+        </div>
+    </div>
+
+    <!-- TABLA DE CONTENIDOS -->
+    <div class="toc">
+        <h3>Tabla de Contenidos</h3>
+        <ol>
+            <li><a href="#intro">Introduccion y Contexto</a></li>
+            <li><a href="#autograd">Diferenciacion Automatica (Autograd)</a></li>
+            <li><a href="#grafos">Grafos de Computacion</a></li>
+            <li><a href="#tinygrad-arch">Arquitectura de Tinygrad</a></li>
+            <li><a href="#backprop">Implementacion del Backpropagation</a></li>
+            <li><a href="#lazy">Evaluacion Lazy y Fusion de Kernels</a></li>
+            <li><a href="#comparison">Comparativa con PyTorch</a></li>
+            <li><a href="#business">Valor de Negocio</a></li>
+            <li><a href="#conclusions">Conclusiones</a></li>
+            <li><a href="#references">Referencias</a></li>
+        </ol>
+    </div>
+
+    <!-- 1. INTRODUCCION -->
+    <h2 id="intro">1. Introduccion y Contexto</h2>
+
+    <p>Tinygrad es un framework de deep learning creado por George Hotz (geohot) en 2020, con el objetivo de demostrar que un motor de redes neuronales completo puede existir en un numero minimo de lineas de codigo. A diferencia de PyTorch (millones de lineas) o TensorFlow (similar escala), tinygrad logra ejecutar modelos de produccion como <strong>LLaMA-65B</strong> y <strong>Stable Diffusion</strong> con aproximadamente <strong>19,000 lineas de codigo</strong>.</p>
+
+    <p>El valor educativo de tinygrad radica en su transparencia: cada componente del framework es legible, modificable y comprensible. Esto lo convierte en la herramienta ideal para entender los fundamentos que sustentan todo el ecosistema de deep learning moderno.</p>
+
+    <div class="metrics-grid">
+        <div class="metric-card">
+            <span class="value">~19K</span>
+            <span class="label">Lineas de codigo</span>
+        </div>
+        <div class="metric-card">
+            <span class="value">65B</span>
+            <span class="label">Parametros (LLaMA)</span>
+        </div>
+        <div class="metric-card">
+            <span class="value">6+</span>
+            <span class="label">Backends GPU</span>
+        </div>
+    </div>
+
+    <h3>1.1 Por que estudiar Tinygrad?</h3>
+    <ul>
+        <li><strong>Transparencia total</strong>: Todo el codigo es legible y auditable</li>
+        <li><strong>Puente educativo</strong>: Conecta la teoria (micrograd) con la produccion (PyTorch)</li>
+        <li><strong>Innovacion real</strong>: Fusion de kernels, evaluacion lazy, multi-backend</li>
+        <li><strong>Produccion viable</strong>: Ejecuta modelos de vanguardia reales</li>
+        <li><strong>Filosofia minimalista</strong>: Demuestra que la complejidad no es necesaria</li>
+    </ul>
+
+    <div class="info-box">
+        <strong>Ruta de aprendizaje recomendada</strong>
+        Micrograd (~100 lineas) &#8594; Tinygrad (~19K lineas) &#8594; PyTorch (millones de lineas). Cada paso multiplica la complejidad pero los conceptos fundamentales son los mismos.
+    </div>
+
+    <!-- 2. AUTOGRAD -->
+    <h2 id="autograd">2. Diferenciacion Automatica (Autograd)</h2>
+
+    <p>La diferenciacion automatica (autodiff) es la tecnica que permite calcular gradientes de funciones complejas de manera <strong>exacta y eficiente</strong>. Es el pilar fundamental del entrenamiento de redes neuronales.</p>
+
+    <h3>2.1 Tipos de Diferenciacion</h3>
+
+    <table>
+        <tr>
+            <th>Metodo</th>
+            <th>Precision</th>
+            <th>Costo</th>
+            <th>Uso</th>
+        </tr>
+        <tr>
+            <td><strong>Simbolica</strong></td>
+            <td>Exacta</td>
+            <td>Explosion de expresiones</td>
+            <td>Mathematica, SymPy</td>
+        </tr>
+        <tr>
+            <td><strong>Numerica</strong> (diferencias finitas)</td>
+            <td>Aproximada</td>
+            <td>O(n) evaluaciones, error numerico</td>
+            <td>Verificacion</td>
+        </tr>
+        <tr>
+            <td><strong>Automatica</strong> (autodiff)</td>
+            <td>Exacta</td>
+            <td>O(1) respecto al forward pass</td>
+            <td>Deep Learning</td>
+        </tr>
+    </table>
+
+    <h3>2.2 La Regla de la Cadena</h3>
+
+    <p>Toda la diferenciacion automatica se basa en una idea simple: la <strong>regla de la cadena</strong> del calculo.</p>
+
+    <div class="formula">
+        Si z = f(g(x)), entonces: dz/dx = dz/dy &middot; dy/dx donde y = g(x)
+    </div>
+
+    <p>Para funciones con multiples variables:</p>
+
+    <div class="formula">
+        dL/dw = dL/dy &middot; dy/dz &middot; dz/dw (cadena de derivadas parciales)
+    </div>
+
+    <h3>2.3 Forward Mode vs Reverse Mode</h3>
+
+    <table>
+        <tr>
+            <th>Aspecto</th>
+            <th>Forward Mode</th>
+            <th>Reverse Mode (Backprop)</th>
+        </tr>
+        <tr>
+            <td>Direccion</td>
+            <td>Entradas &#8594; Salidas</td>
+            <td>Salidas &#8594; Entradas</td>
+        </tr>
+        <tr>
+            <td>Costo por variable</td>
+            <td>1 pasada por entrada</td>
+            <td>1 pasada por salida</td>
+        </tr>
+        <tr>
+            <td>Ideal cuando</td>
+            <td>Pocas entradas, muchas salidas</td>
+            <td>Muchas entradas (parametros), 1 salida (loss)</td>
+        </tr>
+        <tr>
+            <td>Uso en DL</td>
+            <td>Raro</td>
+            <td>Estandar (backpropagation)</td>
+        </tr>
+    </table>
+
+    <div class="info-box">
+        <strong>Por que reverse mode?</strong>
+        En deep learning tenemos millones de parametros (entradas al gradiente) pero un solo escalar de loss (salida). Reverse mode calcula TODOS los gradientes en una sola pasada hacia atras.
+    </div>
+
+    <h3>2.4 Implementacion en Tinygrad</h3>
+
+    <p>Tinygrad implementa autodiff en reverse mode sobre un grafo de operaciones. Cada operacion registra:</p>
+    <ol>
+        <li>Los tensores de entrada (sources)</li>
+        <li>La operacion realizada (op)</li>
+        <li>Una funcion backward que define el gradiente local</li>
+    </ol>
+
+    <pre><code><span class="comment"># Ejemplo conceptual del autograd en tinygrad</span>
+<span class="keyword">from</span> tinygrad.tensor <span class="keyword">import</span> Tensor
+
+x = Tensor([<span class="number">1.0</span>, <span class="number">2.0</span>, <span class="number">3.0</span>], requires_grad=<span class="keyword">True</span>)
+y = Tensor([<span class="number">4.0</span>, <span class="number">5.0</span>, <span class="number">6.0</span>], requires_grad=<span class="keyword">True</span>)
+
+<span class="comment"># Forward pass - se construye el grafo</span>
+z = (x * y).<span class="function">sum</span>()
+
+<span class="comment"># Backward pass - se propagan gradientes</span>
+z.<span class="function">backward</span>()
+
+<span class="comment"># x.grad = [4, 5, 6] (valores de y)</span>
+<span class="comment"># y.grad = [1, 2, 3] (valores de x)</span></code></pre>
+
+    <!-- 3. GRAFOS DE COMPUTACION -->
+    <h2 id="grafos">3. Grafos de Computacion</h2>
+
+    <p>Un <strong>grafo de computacion</strong> es un DAG (Directed Acyclic Graph) donde:</p>
+    <ul>
+        <li><strong>Nodos hoja</strong>: Tensores de entrada y parametros</li>
+        <li><strong>Nodos internos</strong>: Resultados de operaciones</li>
+        <li><strong>Aristas</strong>: Flujo de datos entre operaciones</li>
+        <li><strong>Nodo raiz</strong>: La funcion de perdida (loss)</li>
+    </ul>
+
+    <h3>3.1 Ejemplo: Neurona Simple</h3>
+
+    <div class="diagram">
+    [x1] ----\
+              (*w1)--> [x1*w1] --\
+    [w1] ----/                     \
+                                    (+) --> [sum] --> (+b) --> [n] --> [tanh] --> [o]
+    [x2] ----\                     /                  |
+              (*w2)--> [x2*w2] --/                  [b]
+    [w2] ----/
+
+    Forward:  izquierda ---------> derecha (calcula valores)
+    Backward: derecha -----------> izquierda (calcula gradientes)
+    </div>
+
+    <p>Durante el <strong>forward pass</strong>, cada operacion calcula su resultado y registra sus dependencias. Durante el <strong>backward pass</strong>, los gradientes fluyen en sentido inverso usando la regla de la cadena.</p>
+
+    <h3>3.2 Orden Topologico</h3>
+
+    <p>Para ejecutar el backward correctamente, necesitamos procesar los nodos en <strong>orden topologico inverso</strong>: primero la salida, luego sus dependencias, y asi sucesivamente hasta las entradas.</p>
+
+    <pre><code><span class="keyword">def</span> <span class="function">backward</span>(self):
+    <span class="comment"># 1. Construir orden topologico</span>
+    topo = []
+    visited = <span class="function">set</span>()
+    <span class="keyword">def</span> <span class="function">build_topo</span>(v):
+        <span class="keyword">if</span> v <span class="keyword">not in</span> visited:
+            visited.add(v)
+            <span class="keyword">for</span> child <span class="keyword">in</span> v._prev:
+                <span class="function">build_topo</span>(child)
+            topo.append(v)
+    <span class="function">build_topo</span>(self)
+
+    <span class="comment"># 2. Gradiente de la salida = 1</span>
+    self.grad = <span class="number">1.0</span>
+
+    <span class="comment"># 3. Propagar en orden inverso</span>
+    <span class="keyword">for</span> node <span class="keyword">in</span> <span class="function">reversed</span>(topo):
+        node.<span class="function">_backward</span>()</code></pre>
+
+    <h3>3.3 Gradientes Locales</h3>
+
+    <p>Cada operacion define su gradiente local. La regla de la cadena encadena estos gradientes:</p>
+
+    <table>
+        <tr>
+            <th>Operacion</th>
+            <th>Forward</th>
+            <th>Backward (gradiente local)</th>
+        </tr>
+        <tr>
+            <td>Suma: c = a + b</td>
+            <td>c = a + b</td>
+            <td>da = 1 &middot; dc, db = 1 &middot; dc</td>
+        </tr>
+        <tr>
+            <td>Producto: c = a * b</td>
+            <td>c = a * b</td>
+            <td>da = b &middot; dc, db = a &middot; dc</td>
+        </tr>
+        <tr>
+            <td>ReLU: b = max(0, a)</td>
+            <td>b = max(0, a)</td>
+            <td>da = (a > 0) &middot; db</td>
+        </tr>
+        <tr>
+            <td>Potencia: b = a^n</td>
+            <td>b = a^n</td>
+            <td>da = n &middot; a^(n-1) &middot; db</td>
+        </tr>
+        <tr>
+            <td>Exponencial: b = e^a</td>
+            <td>b = e^a</td>
+            <td>da = e^a &middot; db</td>
+        </tr>
+        <tr>
+            <td>MatMul: C = A @ B</td>
+            <td>C = A @ B</td>
+            <td>dA = dC @ B^T, dB = A^T @ dC</td>
+        </tr>
+    </table>
+
+    <!-- 4. ARQUITECTURA DE TINYGRAD -->
+    <h2 id="tinygrad-arch">4. Arquitectura de Tinygrad</h2>
+
+    <p>Tinygrad tiene una arquitectura en capas que transforma operaciones de alto nivel del usuario en kernels optimizados para hardware especifico.</p>
+
+    <div class="diagram">
+    +------------------------------------------+
+    |        Tensor API (usuario)               |
+    |   a = Tensor([1,2,3]); c = a + b         |
+    +------------------------------------------+
+                      |
+                      v
+    +------------------------------------------+
+    |     UOp Graph (representacion interna)    |
+    |   Ops.ADD, Ops.MUL, Ops.LOAD, etc.       |
+    +------------------------------------------+
+                      |
+                      v
+    +------------------------------------------+
+    |   Scheduler (fusion y optimizacion)       |
+    |   Detecta ops fusionables, minimiza       |
+    |   accesos a memoria global                |
+    +------------------------------------------+
+                      |
+                      v
+    +------------------------------------------+
+    |   Codegen (generacion de codigo)          |
+    |   CUDA, Metal, OpenCL, C, LLVM            |
+    +------------------------------------------+
+                      |
+                      v
+    +------------------------------------------+
+    |   Hardware (ejecucion)                    |
+    |   NVIDIA GPU, AMD GPU, Apple M1/M2, CPU   |
+    +------------------------------------------+
+    </div>
+
+    <h3>4.1 Clase Tensor</h3>
+
+    <p>La clase <code>Tensor</code> es la interfaz principal del usuario. Soporta las operaciones estandar de NumPy/PyTorch pero con evaluacion lazy.</p>
+
+    <pre><code><span class="comment"># API similar a PyTorch/NumPy</span>
+a = Tensor.<span class="function">randn</span>(<span class="number">10</span>, <span class="number">5</span>)
+b = Tensor.<span class="function">randn</span>(<span class="number">5</span>, <span class="number">3</span>)
+c = a.<span class="function">matmul</span>(b).<span class="function">relu</span>()  <span class="comment"># Nada se ejecuta aun (lazy)</span>
+result = c.<span class="function">numpy</span>()       <span class="comment"># Ahora si: .realize() implicito</span></code></pre>
+
+    <h3>4.2 UOps (Universal Operations)</h3>
+
+    <p>Tinygrad reduce TODAS las operaciones de deep learning a un conjunto minimo de operaciones primitivas:</p>
+
+    <table>
+        <tr>
+            <th>Categoria</th>
+            <th>Operaciones</th>
+            <th>Descripcion</th>
+        </tr>
+        <tr>
+            <td><strong>Unarias</strong></td>
+            <td>neg, exp, log, sin, sqrt, relu</td>
+            <td>Transforman cada elemento</td>
+        </tr>
+        <tr>
+            <td><strong>Binarias</strong></td>
+            <td>add, mul, max, cmplt (less than)</td>
+            <td>Combinan dos tensores</td>
+        </tr>
+        <tr>
+            <td><strong>Reduce</strong></td>
+            <td>sum, max</td>
+            <td>Reducen a lo largo de un eje</td>
+        </tr>
+        <tr>
+            <td><strong>Movement</strong></td>
+            <td>reshape, permute, expand, pad</td>
+            <td>Cambian forma sin copiar datos</td>
+        </tr>
+        <tr>
+            <td><strong>Buffer</strong></td>
+            <td>load, store, const</td>
+            <td>I/O con memoria del dispositivo</td>
+        </tr>
+    </table>
+
+    <div class="info-box">
+        <strong>Innovacion clave</strong>
+        Cualquier operacion compleja (softmax, batch norm, attention) se descompone en estas ~15 operaciones primitivas. Esto simplifica enormemente el compilador: solo necesita optimizar un conjunto reducido de operaciones.
+    </div>
+
+    <h3>4.3 El Patron Function</h3>
+
+    <p>Cada operacion diferenciable implementa dos metodos: <code>forward</code> (calcula el resultado) y <code>backward</code> (calcula el gradiente). Esto es identico al patron de PyTorch:</p>
+
+    <pre><code><span class="keyword">class</span> <span class="function">Mul</span>(Function):
+    <span class="keyword">def</span> <span class="function">forward</span>(self, x, y):
+        self.x, self.y = x, y
+        <span class="keyword">return</span> x * y
+
+    <span class="keyword">def</span> <span class="function">backward</span>(self, grad_output):
+        <span class="comment"># d(x*y)/dx = y, d(x*y)/dy = x</span>
+        <span class="keyword">return</span> grad_output * self.y, grad_output * self.x</code></pre>
+
+    <!-- 5. BACKPROPAGATION -->
+    <h2 id="backprop">5. Implementacion del Backpropagation</h2>
+
+    <h3>5.1 El Algoritmo Completo</h3>
+
+    <ol>
+        <li><strong>Forward pass</strong>: Ejecutar la red, registrando cada operacion en el grafo</li>
+        <li><strong>Calcular loss</strong>: Evaluar la funcion de perdida (escalar)</li>
+        <li><strong>Inicializar</strong>: Asignar gradiente = 1.0 al nodo de loss</li>
+        <li><strong>Backward pass</strong>: Recorrer el grafo en orden topologico inverso, aplicando la regla de la cadena en cada nodo</li>
+        <li><strong>Actualizar</strong>: Modificar parametros usando los gradientes calculados</li>
+    </ol>
+
+    <h3>5.2 Ejemplo Completo: Entrenamiento</h3>
+
+    <pre><code><span class="keyword">from</span> tinygrad.tensor <span class="keyword">import</span> Tensor
+<span class="keyword">from</span> tinygrad.nn.optim <span class="keyword">import</span> SGD
+
+<span class="comment"># Definir modelo</span>
+<span class="keyword">class</span> <span class="function">SimpleNet</span>:
+    <span class="keyword">def</span> <span class="function">__init__</span>(self):
+        self.W1 = Tensor.<span class="function">randn</span>(<span class="number">784</span>, <span class="number">128</span>, requires_grad=<span class="keyword">True</span>)
+        self.W2 = Tensor.<span class="function">randn</span>(<span class="number">128</span>, <span class="number">10</span>, requires_grad=<span class="keyword">True</span>)
+
+    <span class="keyword">def</span> <span class="function">forward</span>(self, x):
+        <span class="keyword">return</span> x.<span class="function">matmul</span>(self.W1).<span class="function">relu</span>().<span class="function">matmul</span>(self.W2)
+
+model = <span class="function">SimpleNet</span>()
+opt = <span class="function">SGD</span>([model.W1, model.W2], lr=<span class="number">0.01</span>)
+
+<span class="comment"># Training loop</span>
+<span class="keyword">for</span> batch <span class="keyword">in</span> dataloader:
+    pred = model.<span class="function">forward</span>(batch.X)           <span class="comment"># Forward</span>
+    loss = pred.<span class="function">cross_entropy</span>(batch.y)       <span class="comment"># Loss</span>
+    opt.<span class="function">zero_grad</span>()                          <span class="comment"># Reset gradientes</span>
+    loss.<span class="function">backward</span>()                          <span class="comment"># Backward</span>
+    opt.<span class="function">step</span>()                               <span class="comment"># Update parametros</span></code></pre>
+
+    <h3>5.3 Acumulacion de Gradientes</h3>
+
+    <p>Cuando un tensor es usado multiples veces en el forward pass, sus gradientes se <strong>acumulan</strong> (suman). Esto es crucial para parametros compartidos y es la razon del operador <code>+=</code> en las funciones backward:</p>
+
+    <pre><code><span class="comment"># Si z = x*y + x*w, entonces:</span>
+<span class="comment"># dz/dx = y + w  (gradientes se acumulan)</span>
+self.grad += other.data * out.grad  <span class="comment"># += no =</span></code></pre>
+
+    <!-- 6. LAZY EVALUATION -->
+    <h2 id="lazy">6. Evaluacion Lazy y Fusion de Kernels</h2>
+
+    <h3>6.1 Eager vs Lazy</h3>
+
+    <table>
+        <tr>
+            <th>Aspecto</th>
+            <th>Eager (PyTorch)</th>
+            <th>Lazy (Tinygrad)</th>
+        </tr>
+        <tr>
+            <td>Ejecucion</td>
+            <td>Inmediata en cada operacion</td>
+            <td>Diferida hasta .realize()</td>
+        </tr>
+        <tr>
+            <td>Debugging</td>
+            <td>Facil (resultados inmediatos)</td>
+            <td>Requiere realize() explicito</td>
+        </tr>
+        <tr>
+            <td>Optimizacion</td>
+            <td>Op por op</td>
+            <td>Grafo completo (fusion)</td>
+        </tr>
+        <tr>
+            <td>Memoria</td>
+            <td>Asigna buffers intermedios</td>
+            <td>Minimiza buffers via fusion</td>
+        </tr>
+    </table>
+
+    <pre><code><span class="comment"># PyTorch (Eager): 3 kernels separados, 3 buffers de memoria</span>
+c = a + b       <span class="comment"># Kernel 1: lee a,b; escribe c en memoria</span>
+d = c * <span class="number">2.0</span>     <span class="comment"># Kernel 2: lee c de memoria; escribe d</span>
+e = d.<span class="function">relu</span>()    <span class="comment"># Kernel 3: lee d de memoria; escribe e</span>
+
+<span class="comment"># Tinygrad (Lazy): 1 kernel fusionado, 1 buffer de memoria</span>
+c = a + b       <span class="comment"># Solo registra la operacion</span>
+d = c * <span class="number">2.0</span>     <span class="comment"># Solo registra la operacion</span>
+e = d.<span class="function">relu</span>()    <span class="comment"># Solo registra la operacion</span>
+e.<span class="function">realize</span>()    <span class="comment"># AHORA ejecuta todo fusionado en 1 kernel</span></code></pre>
+
+    <h3>6.2 Fusion de Kernels</h3>
+
+    <p>La fusion de kernels es la optimizacion mas impactante de tinygrad. Combina multiples operaciones elementwise en un solo kernel de GPU, eliminando lecturas y escrituras intermedias a memoria global.</p>
+
+    <div class="diagram">
+    SIN FUSION (3 accesos a memoria):
+
+    GPU Memoria --lee a,b--> [Kernel 1: add] --escribe c--> GPU Memoria
+    GPU Memoria --lee c----> [Kernel 2: mul] --escribe d--> GPU Memoria
+    GPU Memoria --lee d----> [Kernel 3: relu] --escribe e-> GPU Memoria
+
+    CON FUSION (1 acceso a memoria):
+
+    GPU Memoria --lee a,b--> [Kernel Fusionado: relu(add*2)] --escribe e--> GPU Memoria
+    </div>
+
+    <div class="info-box warning">
+        <strong>Impacto en rendimiento</strong>
+        En GPUs modernas, el cuello de botella NO es la computacion sino el <strong>ancho de banda de memoria</strong>. Reducir accesos a memoria de 6 a 2 puede dar speedups de 2-4x sin cambiar el algoritmo.
+    </div>
+
+    <h3>6.3 El Scheduler</h3>
+
+    <p>El Scheduler de tinygrad analiza el grafo UOp y decide que operaciones pueden fusionarse:</p>
+    <ol>
+        <li>Identifica cadenas de operaciones elementwise</li>
+        <li>Detecta operaciones reduce (sum, max) como barreras de fusion</li>
+        <li>Genera ScheduleItems: grupos de operaciones que se convierten en un solo kernel</li>
+        <li>El Codegen traduce cada ScheduleItem a codigo CUDA/Metal/C</li>
+    </ol>
+
+    <!-- 7. COMPARATIVA -->
+    <h2 id="comparison">7. Comparativa con PyTorch</h2>
+
+    <table>
+        <tr>
+            <th>Aspecto</th>
+            <th>Tinygrad</th>
+            <th>PyTorch</th>
+        </tr>
+        <tr>
+            <td><strong>Tamano del codigo</strong></td>
+            <td>~19,000 lineas</td>
+            <td>Millones de lineas</td>
+        </tr>
+        <tr>
+            <td><strong>Modelo de ejecucion</strong></td>
+            <td>Lazy (diferido)</td>
+            <td>Eager (inmediato) + torch.compile</td>
+        </tr>
+        <tr>
+            <td><strong>Enfoque de autograd</strong></td>
+            <td>IR-based autodiff (estilo JAX)</td>
+            <td>Dynamic graph recording</td>
+        </tr>
+        <tr>
+            <td><strong>Backends GPU</strong></td>
+            <td>CUDA, Metal, OpenCL, Vulkan, WebGPU</td>
+            <td>CUDA (principal), ROCm</td>
+        </tr>
+        <tr>
+            <td><strong>Dependencias</strong></td>
+            <td>Python + compilador C</td>
+            <td>LLVM, CUDA toolkit, C++</td>
+        </tr>
+        <tr>
+            <td><strong>Fusion de kernels</strong></td>
+            <td>Automatica desde el inicio</td>
+            <td>torch.compile (Python 3.12+)</td>
+        </tr>
+        <tr>
+            <td><strong>Transparencia</strong></td>
+            <td>Todo visible y hackeable</td>
+            <td>Muchas optimizaciones opacas</td>
+        </tr>
+        <tr>
+            <td><strong>Ecosistema</strong></td>
+            <td>Creciendo</td>
+            <td>Maduro (HuggingFace, etc.)</td>
+        </tr>
+        <tr>
+            <td><strong>Modelos de produccion</strong></td>
+            <td>LLaMA, Stable Diffusion, Whisper</td>
+            <td>Todos</td>
+        </tr>
+        <tr>
+            <td><strong>Entrenamiento distribuido</strong></td>
+            <td>Basico</td>
+            <td>Avanzado (FSDP, DeepSpeed)</td>
+        </tr>
+    </table>
+
+    <div class="info-box">
+        <strong>Cuando usar cual?</strong>
+        <ul>
+            <li><strong>Tinygrad</strong>: Aprendizaje, inference optimizado, hardware no-NVIDIA, edge deployment</li>
+            <li><strong>PyTorch</strong>: Produccion a escala, investigacion, ecosistema completo, entrenamiento distribuido</li>
+        </ul>
+    </div>
+
+    <!-- 8. VALOR DE NEGOCIO -->
+    <h2 id="business">8. Valor de Negocio</h2>
+
+    <h3>8.1 Problema: Vendor Lock-in de NVIDIA</h3>
+
+    <p>La industria de AI depende casi exclusivamente de GPUs NVIDIA y el ecosistema CUDA. Esto genera:</p>
+    <ul>
+        <li>Costos elevados de hardware (GPUs H100: $25,000-40,000 c/u)</li>
+        <li>Dependencia de un solo proveedor</li>
+        <li>Barreras de entrada para competidores de hardware</li>
+    </ul>
+
+    <h3>8.2 Solucion: Multi-Backend de Tinygrad</h3>
+
+    <p>Tinygrad permite ejecutar el MISMO codigo en multiples plataformas de hardware, eliminando el lock-in:</p>
+
+    <div class="metrics-grid">
+        <div class="metric-card" style="background: linear-gradient(135deg, #e63946, #c62828);">
+            <span class="value">CUDA</span>
+            <span class="label">NVIDIA GPUs</span>
+        </div>
+        <div class="metric-card" style="background: linear-gradient(135deg, #ff8c00, #e65100);">
+            <span class="value">Metal</span>
+            <span class="label">Apple M1/M2/M3</span>
+        </div>
+        <div class="metric-card" style="background: linear-gradient(135deg, #457b9d, #1d3557);">
+            <span class="value">OpenCL</span>
+            <span class="label">AMD, Intel GPUs</span>
+        </div>
+    </div>
+
+    <h3>8.3 Tiny Corp: El Modelo de Negocio</h3>
+
+    <p>George Hotz fundo <strong>tiny corp</strong> para comercializar tinygrad:</p>
+    <ul>
+        <li><strong>Hardware propio</strong>: Desarrollo de chips AI optimizados para tinygrad</li>
+        <li><strong>Cloud compute</strong>: Servicio de compute basado en tinygrad</li>
+        <li><strong>Consulting</strong>: Optimizacion de inference para empresas</li>
+        <li><strong>Open source</strong>: El framework sigue siendo libre, el negocio es hardware + servicios</li>
+    </ul>
+
+    <h3>8.4 Casos de Uso Empresarial</h3>
+
+    <table>
+        <tr>
+            <th>Caso de Uso</th>
+            <th>Beneficio</th>
+            <th>Ejemplo</th>
+        </tr>
+        <tr>
+            <td><strong>Edge deployment</strong></td>
+            <td>Framework liviano (~19K LOC)</td>
+            <td>Modelos en dispositivos IoT</td>
+        </tr>
+        <tr>
+            <td><strong>Multi-vendor</strong></td>
+            <td>Mismo codigo, cualquier GPU</td>
+            <td>Evitar lock-in NVIDIA</td>
+        </tr>
+        <tr>
+            <td><strong>Costos de inference</strong></td>
+            <td>Fusion reduce memoria/tiempo</td>
+            <td>APIs de LLM en produccion</td>
+        </tr>
+        <tr>
+            <td><strong>Auditabilidad</strong></td>
+            <td>Codigo legible y auditable</td>
+            <td>Compliance en salud/finanzas</td>
+        </tr>
+        <tr>
+            <td><strong>Investigacion</strong></td>
+            <td>Framework modificable</td>
+            <td>Nuevas arquitecturas/optimizaciones</td>
+        </tr>
+    </table>
+
+    <!-- 9. CONCLUSIONES -->
+    <h2 id="conclusions">9. Conclusiones</h2>
+
+    <div class="info-box">
+        <strong>Hallazgo principal</strong>
+        Tinygrad demuestra que la complejidad de los frameworks de deep learning no es inherente al problema, sino al enfoque de solucion. Con un diseno minimalista y principios claros (evaluacion lazy, operaciones primitivas, fusion automatica), es posible construir un framework capaz de ejecutar los modelos mas grandes del mundo.
+    </div>
+
+    <h3>9.1 Conclusiones Tecnicas</h3>
+    <ol>
+        <li><strong>Autograd es la regla de la cadena</strong>: Toda la magia del entrenamiento de redes neuronales se reduce a aplicar sistematicamente la derivada de funciones compuestas sobre un grafo dirigido aciclico.</li>
+        <li><strong>Los grafos de computacion son la estructura fundamental</strong>: Permiten backpropagation automatica, optimizacion (fusion), y ejecucion en multiples dispositivos.</li>
+        <li><strong>Lazy evaluation habilita optimizaciones imposibles en modo eager</strong>: Al conocer el grafo completo antes de ejecutar, tinygrad puede fusionar operaciones y minimizar accesos a memoria.</li>
+        <li><strong>Las operaciones primitivas simplifican el compilador</strong>: Reducir todo a ~15 operaciones basicas hace que agregar nuevos backends sea viable (~30 ops por implementar).</li>
+    </ol>
+
+    <h3>9.2 Conclusiones de Negocio</h3>
+    <ol>
+        <li><strong>Romper el monopolio CUDA</strong>: Tinygrad permite usar GPUs AMD, Intel y Apple con el mismo rendimiento, reduciendo costos y dependencia.</li>
+        <li><strong>Edge AI</strong>: Framework liviano ideal para deployment en dispositivos con recursos limitados.</li>
+        <li><strong>Transparencia y auditabilidad</strong>: Codigo legible facilita compliance regulatorio en industrias como salud y finanzas.</li>
+        <li><strong>Eficiencia en inference</strong>: La fusion automatica de kernels reduce costos operativos de servir modelos en produccion.</li>
+    </ol>
+
+    <!-- 10. REFERENCIAS -->
+    <h2 id="references">10. Referencias</h2>
+
+    <ol>
+        <li>Hotz, G. (2020). <em>tinygrad</em>. GitHub. <a href="https://github.com/tinygrad/tinygrad">https://github.com/tinygrad/tinygrad</a></li>
+        <li>Hotz, G. (2025). <em>Five Years of Tinygrad</em>. Blog. <a href="https://geohot.github.io/blog/jekyll/update/2025/12/29/five-years-of-tinygrad.html">geohot.github.io</a></li>
+        <li>Tinygrad Documentation. (2025). <a href="https://docs.tinygrad.org/">https://docs.tinygrad.org/</a></li>
+        <li>Karpathy, A. (2020). <em>micrograd</em>. GitHub. <a href="https://github.com/karpathy/micrograd">https://github.com/karpathy/micrograd</a></li>
+        <li>Mesozoic Egg. (2024). <em>Tinygrad Notes: Introduction to the Internals</em>. <a href="https://mesozoic-egg.github.io/tinygrad-notes/">mesozoic-egg.github.io</a></li>
+        <li>PyTorch Documentation. (2025). <em>Autograd Mechanics</em>. <a href="https://docs.pytorch.org/docs/stable/notes/autograd.html">docs.pytorch.org</a></li>
+        <li>Baydin, A. G., et al. (2018). <em>Automatic Differentiation in Machine Learning: a Survey</em>. JMLR, 18(153), 1-43.</li>
+        <li>Griewank, A., & Walther, A. (2008). <em>Evaluating Derivatives: Principles and Techniques of Algorithmic Differentiation</em>. SIAM.</li>
+    </ol>
+
+    <div class="footer">
+        <p>Tinygrad: Autograd y Grafos de Computacion desde Cero | Bloque B - Ingenieria y Frameworks</p>
+        <p>Universidad Privada del Norte - Escuela de Posgrado | Marzo 2026</p>
+    </div>
+</div>
+
+</body>
+</html>
