@@ -442,35 +442,59 @@ text(s, 1.2, 6.7, 11, 0.4,
      15, RED, align=PP_ALIGN.CENTER)
 
 # ============================================================
-# SLIDE 8 - BONUS MATEMATICO (con LaTeX images)
+# SLIDE 8a - BONUS MATEMATICO: Weight Decay
+# ============================================================
+s = prs.slides.add_slide(prs.slide_layouts[6])
+set_bg(s)
+
+PURPLE_ACCENT = RGBColor(0x7B, 0x1F, 0xA2)
+CARD_PURPLE = RGBColor(0xF5, 0xEE, 0xFC)
+
+text(s, 1.2, 0.5, 10, 0.7, "Bonus Matematico", 42, BLACK, bold=True)
+accent_line(s, 1.2, 1.15, 2.5, PURPLE_ACCENT)
+text(s, 1.2, 1.4, 10, 0.4, "Efecto del Weight Decay en la actualizacion de pesos", 17, PURPLE_ACCENT, bold=True)
+
+# Sin Weight Decay
+card(s, 1.2, 2.2, 10.9, 2.1, CARD_PURPLE, PURPLE_ACCENT, 1.0)
+text(s, 1.6, 2.35, 4, 0.4, "Sin Weight Decay", 22, PURPLE_ACCENT, bold=True)
+text(s, 1.6, 2.85, 9, 0.5,
+     "Los pesos se actualizan solo por el gradiente de la perdida. No hay limite a su crecimiento.",
+     15, DARK)
+add_img(s, formula_paths['f1'], 2.5, 3.3, 6.0)
+
+# Con Weight Decay
+card(s, 1.2, 4.6, 10.9, 2.5, CARD_GREEN, GREEN, 1.0)
+text(s, 1.6, 4.75, 4, 0.4, "Con Weight Decay (L2)", 22, GREEN, bold=True)
+text(s, 1.6, 5.25, 9, 0.5,
+     "El factor (1 - eta * lambda) encoge los pesos en cada paso. Pesos grandes se penalizan mas.",
+     15, DARK)
+add_img(s, formula_paths['f2'], 2.0, 5.8, 7.5)
+
+# ============================================================
+# SLIDE 8b - BONUS MATEMATICO: Dropout y Loss
 # ============================================================
 s = prs.slides.add_slide(prs.slide_layouts[6])
 set_bg(s)
 
 text(s, 1.2, 0.5, 10, 0.7, "Bonus Matematico", 42, BLACK, bold=True)
-accent_line(s, 1.2, 1.15, 2.5, RGBColor(0x7B, 0x1F, 0xA2))
-
-# Sin Weight Decay
-text(s, 1.2, 1.6, 10, 0.4, "Sin Weight Decay", 19, DARK, bold=True)
-text(s, 1.5, 2.0, 8, 0.4, "Los pesos se actualizan solo por el gradiente. No hay limite a su crecimiento.", 14, MID)
-card(s, 1.5, 2.5, 8, 0.8, CARD_LIGHT)
-add_img(s, formula_paths['f1'], 2.5, 2.55, 5.5)
-
-# Con Weight Decay
-text(s, 1.2, 3.5, 10, 0.4, "Con Weight Decay (L2)", 19, DARK, bold=True)
-text(s, 1.5, 3.9, 8, 0.4, "El factor (1 - eta*lambda) encoge los pesos en cada paso. Pesos grandes se penalizan mas.", 14, MID)
-card(s, 1.5, 4.3, 9.5, 0.9, CARD_LIGHT)
-add_img(s, formula_paths['f2'], 2.0, 4.35, 7.5)
+accent_line(s, 1.2, 1.15, 2.5, PURPLE_ACCENT)
+text(s, 1.2, 1.4, 10, 0.4, "Dropout y funcion de perdida regularizada", 17, PURPLE_ACCENT, bold=True)
 
 # Dropout
-text(s, 1.2, 5.4, 5, 0.4, "Dropout", 19, DARK, bold=True)
-card(s, 1.5, 5.8, 5, 1.3, CARD_LIGHT)
-add_img(s, formula_paths['f3'], 1.8, 5.85, 4.0)
+card(s, 1.2, 2.2, 10.9, 2.2, CARD_PURPLE, PURPLE_ACCENT, 1.0)
+text(s, 1.6, 2.35, 4, 0.4, "Dropout", 22, PURPLE_ACCENT, bold=True)
+text(s, 1.6, 2.85, 9, 0.5,
+     "En cada forward pass se anulan neuronas al azar. Equivale a entrenar un ensemble de sub-redes.",
+     15, DARK)
+add_img(s, formula_paths['f3'], 2.0, 3.4, 6.5)
 
 # Loss total
-text(s, 7.0, 5.4, 5, 0.4, "Loss total con L2", 19, DARK, bold=True)
-card(s, 7.0, 5.8, 5.5, 1.0, CARD_LIGHT)
-add_img(s, formula_paths['f4'], 7.2, 5.9, 5.0)
+card(s, 1.2, 4.7, 10.9, 2.3, CARD_GREEN, GREEN, 1.0)
+text(s, 1.6, 4.85, 5, 0.4, "Loss total con regularizacion L2", 22, GREEN, bold=True)
+text(s, 1.6, 5.35, 9, 0.5,
+     "El termino de regularizacion anade un gradiente 2*lambda*w que fluye por todas las capas, controlando la magnitud de cada peso.",
+     15, DARK)
+add_img(s, formula_paths['f4'], 2.5, 5.9, 6.0)
 
 # ============================================================
 # SLIDE 9 - CONCLUSIONES
